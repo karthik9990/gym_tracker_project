@@ -6,23 +6,23 @@
 <div class="container mt-4">
     {# Form to select/change the date being logged #}
     <form method="POST" action="{% url 'workouts:log_workout_date' date_str=view_date_str %}" class="mb-3">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="change_date"> {# Identify this form's purpose #}
-        <div class="row g-2 align-items-center">
-            <div class="col-auto">
+         {% csrf_token %}
+         <input type="hidden" name="action" value="change_date">
+         <div class="row g-2 align-items-center">
+             <div class="col-auto">
                 <label for="selected_date" class="col-form-label"><strong>Logging Workout for Date:</strong></label>
-            </div>
-            <div class="col-auto">
-                {# Use HTML5 date input AND add the 'max' attribute #}
+             </div>
+             <div class="col-auto">
+                {# Use HTML5 date input with max attribute set from view context #}
                 <input type="date" id="selected_date" name="selected_date"
                        class="form-control" value="{{ view_date_str }}"
-                       max="{% now 'Y-m-d' %}" {# <-- ADD THIS LINE #}
-                required>
-            </div>
-            <div class="col-auto">
+                       max="{{ today_date_str }}" {# Use variable passed from view #}
+                       required>
+             </div>
+             <div class="col-auto">
                 <button type="submit" class="btn btn-secondary btn-sm">Go to Date</button>
-            </div>
-        </div>
+             </div>
+         </div>
     </form>
 
     <hr>
@@ -30,14 +30,10 @@
     <h2>Log Exercises for {{ view_date|date:"F d, Y" }}</h2>
 
     <!-- Form to add a single exercise log -->
-    <!-- Action now points to the date-specific URL -->
-    <form method="POST" action="{% url 'workouts:log_workout_date' date_str=view_date_str %}" id="add-exercise-form"
-          class="mb-4 p-3 border rounded">
+    <form method="POST" action="{% url 'workouts:log_workout_date' date_str=view_date_str %}" id="add-exercise-form" class="mb-4 p-3 border rounded">
         {% csrf_token %}
-        {# Hidden input to identify the action #}
         <input type="hidden" name="action" value="add_item">
-        {# Hidden input to pass the date context with the submission #}
-        <input type="hidden" name="date" value="{{ view_date_str }}">
+        <input type="hidden" name="date" value="{{ view_date_str }}"> {# Context date #}
 
         <h4 class="mb-3">Add Exercise</h4>
         <div class="row g-3 align-items-end mb-3">
@@ -66,9 +62,8 @@
                 <label for="weight" class="form-label">Weight (kg)</label>
                 <input type="number" step="0.01" name="weight" id="weight" class="form-control" min="0">
             </div>
-            {# Add button #}
+             {# Add button #}
             <div class="col-md-2">
-                {# Button text now reflects the specific date #}
                 <button type="submit" class="btn btn-primary w-100">Add to {{ view_date|date:"M d" }} Workout</button>
             </div>
         </div>
@@ -80,26 +75,33 @@
     <!-- Display current "Cart" items for the specific date -->
     <h3>Workout Items for {{ view_date|date:"F d, Y" }} (Not Saved Yet)</h3>
     {% if cart_items %}
-    <ul class="list-group mb-3">
-        {% for item in cart_items %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
+        <ul class="list-group mb-3">
+            {% for item in cart_items %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>
                         <strong>{{ item.exercise_name }}</strong>
                         {% if item.sets and item.reps %} - {{ item.sets }}x{{ item.reps }}{% endif %}
                         {% if item.weight %} @ {{ item.weight }}kg{% endif %}
+                        {# Add remove button later? #}
                     </span>
-        </li>
-        {% endfor %}
-    </ul>
-    <!-- Form/Button to Save the workout for the specific date -->
-    <form method="POST" action="{% url 'workouts:save_workout' %}">
-        {% csrf_token %}
-        {# Crucial: Pass the date being saved #}
-        <input type="hidden" name="date_to_save" value="{{ view_date_str }}">
-        <button type="submit" class="btn btn-success">Save {{ view_date|date:"M d" }} Workout Session</button>
-    </form>
+                </li>
+            {% endfor %}
+        </ul>
+         <!-- Form/Button to Save the workout for the specific date -->
+        <form method="POST" action="{% url 'workouts:save_workout' %}">
+             {% csrf_token %}
+             <input type="hidden" name="date_to_save" value="{{ view_date_str }}"> {# Ensure this is passed #}
+             {# Optional: Add session notes field #}
+             {#
+             <div class="mb-3">
+                <label for="session_notes" class="form-label">Session Notes (Optional)</label>
+                <textarea class="form-control" id="session_notes" name="session_notes" rows="2"></textarea>
+             </div>
+             #}
+             <button type="submit" class="btn btn-success">Save {{ view_date|date:"M d" }} Workout Session</button>
+        </form>
     {% else %}
-    <p>No exercises added to this workout yet.</p>
+        <p>No exercises added to this workout yet.</p>
     {% endif %}
 
 </div>

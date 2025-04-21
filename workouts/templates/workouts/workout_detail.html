@@ -52,6 +52,11 @@
 
     <div class="mt-4">
         <a href="{% url 'workouts:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        {# Links to the log page for the date of the session being viewed #}
+            <a href="{% url 'workouts:log_workout_date' date_str=session.date|date:'Y-m-d' %}" class="btn btn-primary ms-2"> {# ms-2 adds margin-start #}
+                <i class="bi bi-pencil-square me-1"></i> {# Optional: Add an icon #}
+                Log/Edit This Date
+            </a>
         <!-- Optional: Add Edit/Delete buttons here later -->
     </div>
 </div>

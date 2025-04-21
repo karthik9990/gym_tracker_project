@@ -4,10 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Dashboard is now fixed with multiple users and their individual dashboards">
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Now the date cannot be future , only past and todays date can be entered.">
+      <change afterPath="$PROJECT_DIR$/workouts/templatetags/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/workouts/templatetags/calendar_tags.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/dashboard.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/workout_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/workout_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -18,8 +23,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -53,10 +58,14 @@
   "keyToString": {
     "DefaultHtmlFileTemplate": "HTML File",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master"
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/ktadakapalli/gym_tracker_project/workouts/templatetags"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ktadakapalli\gym_tracker_project\workouts\templatetags" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\workouts\templates\workouts" />
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\templates\registration" />
@@ -102,13 +111,22 @@
       <option name="project" value="LOCAL" />
       <updated>1745266614792</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Now the date cannot be future , only past and todays date can be entered.">
+      <option name="closed" value="true" />
+      <created>1745267283875</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1745267283875</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Saving data" />
     <MESSAGE value="Added Dashboard to users main page" />
     <MESSAGE value="Dashboard is now fixed with multiple users and their individual dashboards" />
-    <option name="LAST_COMMIT_MESSAGE" value="Dashboard is now fixed with multiple users and their individual dashboards" />
+    <MESSAGE value="Now the date cannot be future , only past and todays date can be entered." />
+    <option name="LAST_COMMIT_MESSAGE" value="Now the date cannot be future , only past and todays date can be entered." />
   </component>
 </project>

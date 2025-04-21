@@ -1,39 +1,115 @@
 {% extends 'workouts/base.html' %}
+{% load static %}
+{% load calendar_tags %} {# <--- Make sure this load tag is present #}
 
-{% block title %}Workout Dashboard{% endblock %}
+{% block title %}Workout Dashboard - {{ current_month_date|date:"F Y" }}{% endblock %}
 
 {% block content %}
+<style>
+    /* Basic Calendar Styling (can move to separate CSS file) */
+    .calendar-table { table-layout: fixed; border-collapse: collapse; }
+    .calendar-table th, .calendar-table td {
+        text-align: center;
+        vertical-align: top;
+        height: 110px; /* Increased height slightly */
+        width: 14.28%; /* Equal width columns */
+        border: 1px solid #dee2e6;
+        padding: 0.3rem;
+        font-size: 0.9rem;
+    }
+    .calendar-table th { background-color: #f8f9fa; font-weight: bold; padding: 0.5rem;}
+    .calendar-day { font-weight: bold; display: block; margin-bottom: 5px; text-align: right; }
+    .calendar-day-content { text-align: left; } /* Align links/text left */
+    .other-month { background-color: #f8f9fa; } /* More distinct background for other month days */
+    .other-month .calendar-day { color: #adb5bd; }
+    .workout-link {
+        display: block;
+        margin-top: 5px;
+        padding: 4px 6px; /* More padding */
+        background-color: #cfe2ff; /* Bootstrap info-bg-subtle */
+        border: 1px solid #9ec5fe; /* Bootstrap info-border-subtle */
+        color: #0a58ca; /* Link color */
+        border-radius: 0.25rem; /* Softer corners */
+        font-size: 0.8rem;
+        text-decoration: none;
+        text-align: center; /* Center text in link */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .workout-link:hover { background-color: #b6d4fe; border-color: #8bbaff; }
+    .today { background-color: #fff3cd !important; } /* Highlight today, !important might be needed */
+</style>
 <div class="container mt-4">
-    <h2>Your Workout History</h2>
-
-    {% if workout_sessions %}
-        <div class="list-group">
-            {% for session in workout_sessions %}
-                <a href="{% url 'workouts:workout_detail' session_id=session.id %}" class="list-group-item list-group-item-action"> <!-- Add detail link later -->
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">Workout on {{ session.date|date:"F d, Y" }}</h5>
-                        <small>{{ session.created_at|timesince }} ago</small>
-                    </div>
-                    <p class="mb-1">
-                        {% if session.notes %}
-                            {{ session.notes|truncatewords:15 }}
-                        {% else %}
-                            <!-- We could potentially show a summary like "X exercises logged" -->
-                            View details to see exercises logged.
-                        {% endif %}
-                    </p>
-                    <small>Click to view details.</small>
-                </a>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-info" role="alert">
-            You haven't saved any workout sessions yet. Go <a href="{% url 'workouts:log_workout_today' %}" class="alert-link">log one</a>!
-        </div>
-    {% endif %}
-
     <div class="mt-4">
         <a href="{% url 'workouts:log_workout_today' %}" class="btn btn-primary">Log Today's Workout</a>
     </div>
 </div>
+<div class="container mt-4">
+
+    {# --- Calendar Header and Navigation --- #}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{% url 'workouts:dashboard' %}?year={{ prev_month_date.year }}&month={{ prev_month_date.month }}"
+           class="btn btn-outline-secondary">« {{ prev_month_date|date:"M Y" }}</a>
+        <h2>{{ current_month_date|date:"F Y" }}</h2>
+        <a href="{% url 'workouts:dashboard' %}?year={{ next_month_date.year }}&month={{ next_month_date.month }}"
+           class="btn btn-outline-secondary">{{ next_month_date|date:"M Y" }} »</a>
+    </div>
+
+    {# --- Calendar Table --- #}
+    <table class="table calendar-table table-bordered"> {# Added table-bordered #}
+        <thead>
+        <tr>
+            <th>Sun</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for week in calendar_weeks %}
+        <tr>
+            {% for day_date in week %}
+            {% now "Y-m-d" as todays_date_str %}
+            {% with session=sessions_map|get_item:day_date %}
+
+            {# Construct class string directly within the td tag #}
+            <td class="{% if day_date.month != current_month_date.month %}other-month {% endif %}{% if day_date|date:"Y-m-d" == todays_date_str %}today{% endif %}">
+                <div class="calendar-day">{{ day_date.day }}</div>
+                <div class="calendar-day-content"> {# Container for content #}
+                    {% if session %}
+                    {# --- Display Link to View Existing Workout --- #}
+                    <a href="{% url 'workouts:workout_detail' session_id=session.id %}" class="workout-link"
+                       title="View workout for {{ day_date|date:'M d, Y' }}">
+                        View Workout
+                    </a>
+                {% else %}
+                    {# --- Display Add Button for Valid Days --- #}
+                    {# Condition: Must be in the current displayed month AND not a future date #}
+                    {% if day_date.month == current_month_date.month and day_date|date:'Y-m-d' <= todays_date_str %}
+                        <a href="{% url 'workouts:log_workout_date' date_str=day_date|date:'Y-m-d' %}"
+                           class="btn btn-sm btn-outline-success mt-1 w-100" {# Adjusted styling #}
+                           title="Log workout for {{ day_date|date:'M d, Y' }}">
+                            <i class="bi bi-plus-lg"></i> {# Bootstrap Plus Icon #}
+                            <span class="visually-hidden">Log workout</span> {# Accessibility text #}
+                        </a>
+                    {% endif %}
+                {% endif %}
+                </div>
+            </td>
+            {% endwith %} {# End with session #}
+            {% endfor %} {# End day loop #}
+        </tr>
+        {% endfor %} {# End week loop #}
+        </tbody>
+    </table>
+
+    <div class="mt-4 text-center">
+        <a href="{% url 'workouts:log_workout_today' %}" class="btn btn-primary">Log Today's Workout</a>
+    </div>
+
+</div> {# End container #}
 {% endblock %}
