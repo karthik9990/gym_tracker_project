@@ -12,7 +12,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
-        <a class="navbar-brand" href="#">Gym Tracker</a>
+        <a class="navbar-brand" href="{% url 'workouts:dashboard' %}">Gym Tracker</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -22,22 +22,27 @@
                 <!-- Add nav items here later (e.g., Log Workout, Dashboard, Logout) -->
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'workouts:dashboard' %}">Dashboard</a> {# Updated Link #}
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'workouts:log_workout' %}">Log Today's Workout</a>
-                </li>
-                <li class="nav-item">
-                    <span class="navbar-text me-3">Welcome, {{ user.username }}!</span>
-                </li>
-                <li class="nav-item">
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-link nav-link"
-                                style="display: inline; padding: 0; vertical-align: baseline;">Logout
-                        </button>
-                    </form>
-                </li>
+        <a class="nav-link" href="{% url 'workouts:dashboard' %}">Dashboard</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'workouts:log_workout_today' %}">Log Today's Workout</a>
+    </li>
+
+    {# This item combines the welcome text and the logout button #}
+    {# Use flex utilities for alignment within this single list item #}
+    <li class="nav-item d-flex align-items-center">
+        <span class="navbar-text me-3"> {# Keep margin for spacing #}
+            Welcome, {{ user.username }}!
+        </span>
+        {# Make the form display inline within the flex container #}
+        <form method="post" action="{% url 'logout' %}" class="d-inline">
+            {% csrf_token %}
+            {# Apply nav-link styling directly to the button. btn-link makes it look like text #}
+            <button type="submit" class="btn btn-link nav-link p-0" style="vertical-align: baseline;">
+                Logout
+            </button>
+        </form>
+    </li>
                 {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'login' %}">Login</a>

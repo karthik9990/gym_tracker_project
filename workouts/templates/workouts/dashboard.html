@@ -28,12 +28,12 @@
         </div>
     {% else %}
         <div class="alert alert-info" role="alert">
-            You haven't saved any workout sessions yet. Go <a href="{% url 'workouts:log_workout' %}" class="alert-link">log one</a>!
+            You haven't saved any workout sessions yet. Go <a href="{% url 'workouts:log_workout_today' %}" class="alert-link">log one</a>!
         </div>
     {% endif %}
 
     <div class="mt-4">
-        <a href="{% url 'workouts:log_workout' %}" class="btn btn-primary">Log Today's Workout</a>
+        <a href="{% url 'workouts:log_workout_today' %}" class="btn btn-primary">Log Today's Workout</a>
     </div>
 </div>
 {% endblock %}

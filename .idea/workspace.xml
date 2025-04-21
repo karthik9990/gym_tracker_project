@@ -4,11 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Saving data">
-      <change afterPath="$PROJECT_DIR$/workouts/templates/workouts/dashboard.html" afterDir="false" />
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added Dashboard to users main page">
+      <change afterPath="$PROJECT_DIR$/workouts/templates/workouts/home.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gym_tracker_project/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gym_tracker_project/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
     </list>
@@ -88,11 +92,20 @@
       <option name="project" value="LOCAL" />
       <updated>1745262329865</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added Dashboard to users main page">
+      <option name="closed" value="true" />
+      <created>1745263407066</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1745263407066</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Saving data" />
-    <option name="LAST_COMMIT_MESSAGE" value="Saving data" />
+    <MESSAGE value="Added Dashboard to users main page" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added Dashboard to users main page" />
   </component>
 </project>

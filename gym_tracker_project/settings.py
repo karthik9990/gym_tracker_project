@@ -124,5 +124,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # gym_tracker_project/settings.py (at the bottom)
-LOGIN_REDIRECT_URL = '/workouts/log/' # Redirect to the log page after login
+LOGIN_REDIRECT_URL = '/workouts/' # Redirect to the log page after login
 LOGOUT_REDIRECT_URL = '/' # Redirect to home page (or login page) after logout
