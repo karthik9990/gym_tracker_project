@@ -9,10 +9,10 @@
     <hr>
     {% if not user.is_authenticated %}
         <p>Please <a href="{% url 'login' %}">log in</a> to track your workouts.</p>
-        {# Optional: Add a registration link here if you implement it #}
-        {# <p>Don't have an account? <a href="{% url 'register' %}">Sign up!</a></p> #}
+        <p>Don't have an account? <a href="{% url 'signup' %}" class="btn btn-success">Sign Up Now!</a></p>
+
     {% else %}
-        {# This part might not be reached due to the redirect in the view, but good fallback #}
+
         <p>Go to your <a href="{% url 'workouts:dashboard' %}">Dashboard</a>.</p>
     {% endif %}
 </div>

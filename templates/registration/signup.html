@@ -1,0 +1,46 @@
+{% extends 'workouts/base.html' %} {# Use your app's base template #}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5"> {# Adjusted column width #}
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Create Account</h2>
+                </div>
+                <div class="card-body p-4">
+                    {# Display the generic error message if form is invalid #}
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if 'error' in message.tags %} {# Only show the generic error message #}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post"> {# Removed novalidate for now #}
+                        {% csrf_token %}
+
+                        {# Render the form simply using paragraphs #}
+                        {# This automatically includes labels, inputs, help text, and errors #}
+                        {{ form.as_p }}
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Sign Up</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center bg-light">
+                    <small>Already have an account? <a href="{% url 'login' %}">Log In</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{# No extra_scripts block needed for this simple version #}

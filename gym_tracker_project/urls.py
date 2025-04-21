@@ -22,6 +22,7 @@ urlpatterns = [
     path('', workout_views.home_view, name='home'),
     path('admin/', admin.site.urls),
     path('workouts/', include('workouts.urls')),
+    path('accounts/signup/', workout_views.signup_view, name='signup'),
     path('accounts/', include('django.contrib.auth.urls')),
     # Add authentication URLs later
 ]
