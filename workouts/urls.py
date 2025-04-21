@@ -8,5 +8,6 @@ urlpatterns = [
     # We'll use one view for GET (show form/cart) and POST (add item)
     path('log/', views.log_workout_view, name='log_workout'),
     path('save/', views.save_workout_view, name='save_workout'),
-    # Add other URLs later (dashboard, etc.)
+    path('', views.dashboard_view, name='dashboard'),
+    path('session/<int:session_id>/', views.workout_detail_view, name='workout_detail'),
 ]

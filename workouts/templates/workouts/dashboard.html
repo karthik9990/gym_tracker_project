@@ -1,0 +1,39 @@
+{% extends 'workouts/base.html' %}
+
+{% block title %}Workout Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Your Workout History</h2>
+
+    {% if workout_sessions %}
+        <div class="list-group">
+            {% for session in workout_sessions %}
+                <a href="{% url 'workouts:workout_detail' session_id=session.id %}" class="list-group-item list-group-item-action"> <!-- Add detail link later -->
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Workout on {{ session.date|date:"F d, Y" }}</h5>
+                        <small>{{ session.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">
+                        {% if session.notes %}
+                            {{ session.notes|truncatewords:15 }}
+                        {% else %}
+                            <!-- We could potentially show a summary like "X exercises logged" -->
+                            View details to see exercises logged.
+                        {% endif %}
+                    </p>
+                    <small>Click to view details.</small>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            You haven't saved any workout sessions yet. Go <a href="{% url 'workouts:log_workout' %}" class="alert-link">log one</a>!
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'workouts:log_workout' %}" class="btn btn-primary">Log Today's Workout</a>
+    </div>
+</div>
+{% endblock %}

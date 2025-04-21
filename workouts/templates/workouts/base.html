@@ -22,7 +22,7 @@
                 <!-- Add nav items here later (e.g., Log Workout, Dashboard, Logout) -->
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Dashboard</a> <!-- Add dashboard url later -->
+                    <a class="nav-link" href="{% url 'workouts:dashboard' %}">Dashboard</a> {# Updated Link #}
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'workouts:log_workout' %}">Log Today's Workout</a>

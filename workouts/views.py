@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Exercise, WorkoutSession, WorkoutLog
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from django.urls import reverse  # To generate URLs
 
 
@@ -116,7 +117,7 @@ def save_workout_view(request):
         # Redirect to a success page or dashboard (dashboard doesn't exist yet)
         print("Workout saved successfully!")
         # Add a success message using Django messages framework later
-        return redirect('workouts:log_workout')  # Redirect back to log page for now
+        return redirect('workouts:dashboard')  # Redirect back to log page for now
 
     except Exception as e:
         # Handle potential errors during save
@@ -124,4 +125,32 @@ def save_workout_view(request):
         # Add error message using Django messages framework later
         return redirect('workouts:log_workout')  # Redirect back
 
-# Add dashboard_view later
+@login_required
+def dashboard_view(request):
+    # Fetch all workout sessions for the currently logged-in user
+    # Order them by date, most recent first (defined in model's Meta)
+    user_sessions = WorkoutSession.objects.filter(user=request.user)
+
+    context = {
+        'workout_sessions': user_sessions,
+    }
+    return render(request, 'workouts/dashboard.html', context)
+
+@login_required
+def workout_detail_view(request, session_id):
+    # Fetch the specific WorkoutSession by its ID
+    # Also ensure the session belongs to the current user for security
+    workout_session = get_object_or_404(WorkoutSession, pk=session_id, user=request.user)
+
+    # Fetch the related WorkoutLog entries using the related_name='logs'
+    # defined in the WorkoutLog model's ForeignKey.
+    # They are automatically ordered if specified in WorkoutLog's Meta,
+    # otherwise, you can add .order_by('id') or similar here.
+    session_logs = workout_session.logs.all()
+
+    context = {
+        'session': workout_session,
+        'logs': session_logs,
+    }
+    return render(request, 'workouts/workout_detail.html', context)
+# We'll add workout_detail_view later

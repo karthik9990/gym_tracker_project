@@ -1,0 +1,58 @@
+{% extends 'workouts/base.html' %}
+
+{% block title %}Workout Details - {{ session.date|date:"Y-m-d" }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'workouts:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Workout on {{ session.date|date:"F d, Y" }}</li>
+        </ol>
+    </nav>
+
+    <h2>Workout Details</h2>
+    <p><strong>Date:</strong> {{ session.date|date:"F d, Y" }}</p>
+    {% if session.notes %}
+    <p><strong>Session Notes:</strong></p>
+    <div class="card card-body bg-light mb-3">
+        {{ session.notes|linebreaksbr }} {# Use linebreaksbr to respect newlines #}
+    </div>
+    {% endif %}
+
+    <h4 class="mt-4">Exercises Logged:</h4>
+    {% if logs %}
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Exercise</th>
+                    <th scope="col">Sets</th>
+                    <th scope="col">Reps</th>
+                    <th scope="col">Weight (kg)</th>
+                    <!-- Add Duration header if using -->
+                    <th scope="col">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td><strong>{{ log.exercise.name }}</strong></td>
+                    <td>{{ log.sets|default:"N/A" }}</td>
+                    <td>{{ log.reps|default:"N/A" }}</td>
+                    <td>{{ log.weight|default:"N/A" }}</td>
+                    <!-- Add Duration data cell if using: <td>{{ log.duration|default:"N/A" }}</td> -->
+                    <td>{{ log.notes|default:""|linebreaksbr }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No specific exercises were logged for this session.</p>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'workouts:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        <!-- Optional: Add Edit/Delete buttons here later -->
+    </div>
+</div>
+{% endblock %}
