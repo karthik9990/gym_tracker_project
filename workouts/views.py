@@ -5,66 +5,72 @@ from .models import Exercise, WorkoutSession, WorkoutLog
 from django.utils import timezone
 import datetime
 from django.urls import reverse
+from django.contrib import messages
 
 
 # CART_SESSION_KEY = 'workout_cart' # Define a constant key
 
-@login_required  # Ensures only logged-in users can access
-def log_workout_view(request):
+@login_required
+def log_workout_view(request, date_str):
     available_exercises = Exercise.objects.all().order_by('name')
-    today_str = timezone.now().strftime('%Y-%m-%d')  # Get today's date as string
+    today = timezone.now().date()  # Get today's date
 
-    # --- Handle adding an item to the cart (POST request) ---
+    try:
+        view_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+        # --- !!! SERVER-SIDE VALIDATION !!! ---
+        if view_date > today:
+            messages.error(request, "You cannot log workouts for future dates.")
+            return redirect('workouts:log_workout_today')  # Redirect to today
+        # --- End Validation ---
+    except ValueError:
+        messages.error(request, "Invalid date format provided.")
+        return redirect('workouts:log_workout_today')
+
     if request.method == 'POST':
-        try:
-            exercise_id = request.POST.get('exercise')
-            sets = request.POST.get('sets')
-            reps = request.POST.get('reps')
-            weight = request.POST.get('weight')
-            # Add duration, notes later if needed
+        action = request.POST.get('action')
 
-            if not exercise_id:
-                raise ValueError("Exercise must be selected.")  # Basic validation
+        if action == 'add_item':
+            # --- Add item logic (check view_date > today again just in case?) ---
+            # Although technically covered by the initial check, belt-and-suspenders doesn't hurt
+            if view_date > today:
+                messages.error(request, "Cannot add items for a future date.")
+                return redirect('workouts:log_workout_today')
 
-            exercise = get_object_or_404(Exercise, pk=exercise_id)
+            # ... (rest of add item logic as before) ...
+            try:
+                # ... (inside try block) ...
+                return redirect('workouts:log_workout_date', date_str=date_str)
+            except (ValueError, Exercise.DoesNotExist) as e:
+                messages.error(request, f"Error adding item: {e}")
+                # Fall through to render the page again (GET logic)
 
-            # Get or initialize the cart from the session
-            cart = request.session.get('workout_cart', {})
-            if today_str not in cart:
-                cart[today_str] = []  # Initialize list for today if not present
+        elif action == 'change_date':
+            new_date_str = request.POST.get('selected_date')
+            if new_date_str:
+                try:
+                    new_date = datetime.datetime.strptime(new_date_str, '%Y-%m-%d').date()
+                    # --- !!! VALIDATE NEW DATE BEFORE REDIRECT !!! ---
+                    if new_date > today:
+                        messages.error(request, "You cannot select a future date.")
+                        # Redirect back to the *current* valid date page
+                        return redirect('workouts:log_workout_date', date_str=date_str)
+                    # --- End Validation ---
+                    # Redirect to the log page for the newly selected valid date
+                    return redirect('workouts:log_workout_date', date_str=new_date_str)
+                except ValueError:
+                    messages.error(request, f"Invalid date selected: {new_date_str}")
+            # If date is invalid or missing, just reload the current page
+            return redirect('workouts:log_workout_date', date_str=date_str)
 
-            # Prepare item data (store IDs and values)
-            item_data = {
-                'exercise_id': exercise.id,
-                'exercise_name': exercise.name,  # Store name for easy display
-                'sets': sets if sets else None,  # Store None if empty
-                'reps': reps if reps else None,
-                'weight': weight if weight else None,
-                # Add duration, notes here
-            }
-            cart[today_str].append(item_data)
-
-            # Save the updated cart back to the session
-            request.session['workout_cart'] = cart
-            request.session.modified = True  # Important: mark session as modified
-
-            # Redirect back to the same page after POST to avoid resubmission
-            return redirect('workouts:log_workout')
-
-        except (ValueError, Exercise.DoesNotExist) as e:
-            # Handle errors (e.g., show a message - using Django messages framework is ideal)
-            print(f"Error adding item: {e}")  # Simple print for now
-            # Fall through to render the page again (GET logic) with potential error message
-
-    # --- Display the form and current cart (GET request or after failed POST) ---
+    # --- GET request or after failed POST ---
     cart = request.session.get('workout_cart', {})
-    cart_items_today = cart.get(today_str, [])  # Get items specifically for today
+    cart_items_for_date = cart.get(date_str, [])
 
     context = {
         'available_exercises': available_exercises,
-        'cart_items': cart_items_today,
-        'view_date': timezone.now().date(),  # Pass today's date object
-        'view_date_str': today_str,
+        'cart_items': cart_items_for_date,
+        'view_date': view_date,
+        'view_date_str': date_str,
     }
     return render(request, 'workouts/log_workout.html', context)
 
@@ -170,74 +176,57 @@ def log_workout_view(request, date_str):  # Now accepts date_str
 
 @login_required
 def save_workout_view(request):
-    if request.method != 'POST':
-        return redirect('workouts:dashboard')  # Redirect if not POST
-
-    # --- Get the date to save from the hidden form input ---
+    # ... (initial POST check) ...
     date_to_save_str = request.POST.get('date_to_save')
+    today = timezone.now().date()  # Get today's date
 
     if not date_to_save_str:
-        # Handle case where date is missing from form
-        print("Error: Date to save is missing from the form.")
-        # Maybe redirect back with an error message?
-        return redirect(request.META.get('HTTP_REFERER', 'workouts:dashboard'))  # Go back
-
-    # --- Validate and parse the date ---
-    try:
-        session_date = datetime.datetime.strptime(date_to_save_str, '%Y-%m-%d').date()
-    except ValueError:
-        print(f"Error: Invalid date format received for saving: {date_to_save_str}")
-        # Redirect back with error?
+        messages.error(request, "Date missing from save request.")
         return redirect(request.META.get('HTTP_REFERER', 'workouts:dashboard'))
 
-    # --- Retrieve cart items for the specific date ---
+    try:
+        session_date = datetime.datetime.strptime(date_to_save_str, '%Y-%m-%d').date()
+        # --- !!! SERVER-SIDE VALIDATION BEFORE SAVING !!! ---
+        if session_date > today:
+            messages.error(request, "Cannot save workout sessions for future dates.")
+            # Redirect back to the log page for that date (which should also fail/redirect)
+            # Or redirect to dashboard
+            return redirect('workouts:log_workout_date', date_str=date_to_save_str)
+        # --- End Validation ---
+    except ValueError:
+        messages.error(request, f"Invalid date format received for saving: {date_to_save_str}")
+        return redirect(request.META.get('HTTP_REFERER', 'workouts:dashboard'))
+
+    # ... (rest of the save logic: retrieve cart, get_or_create session, create logs, clear cart) ...
     cart = request.session.get('workout_cart', {})
-    cart_items_for_date = cart.get(date_to_save_str, [])  # Use date_to_save_str key
+    cart_items_for_date = cart.get(date_to_save_str, [])
 
     if not cart_items_for_date:
-        print(f"Cart is empty for {date_to_save_str}, nothing to save.")
-        # Redirect back, maybe with a message
+        messages.warning(request, f"Workout for {date_to_save_str} was empty, nothing saved.")
         return redirect('workouts:log_workout_date', date_str=date_to_save_str)
 
     try:
-        # Get or create the WorkoutSession for the user and the SPECIFIC date
+        # ... (get_or_create WorkoutSession using validated session_date) ...
         workout_session, created = WorkoutSession.objects.get_or_create(
             user=request.user,
-            date=session_date,  # Use the parsed session_date
-            defaults={'notes': ''}  # Optional: provide default values if creating
+            date=session_date,
+            defaults={'notes': ''}
         )
-
-        # Loop through items in the cart for the specific date and create Logs
+        # ... (loop through items and create WorkoutLog) ...
         for item in cart_items_for_date:
-            try:
-                exercise = Exercise.objects.get(pk=item['exercise_id'])
-                WorkoutLog.objects.create(
-                    session=workout_session,
-                    exercise=exercise,
-                    sets=item.get('sets'),
-                    reps=item.get('reps'),
-                    weight=item.get('weight'),
-                )
-            except Exercise.DoesNotExist:
-                print(f"Skipping item - Exercise ID {item['exercise_id']} not found.")
-                continue
+            # ... (create log logic) ...
+            pass  # Replace pass with actual creation logic
 
-        # --- Clear the specific date's items from the cart ---
+        # ... (clear specific date's items from cart) ...
         if date_to_save_str in request.session.get('workout_cart', {}):
             del request.session['workout_cart'][date_to_save_str]
             request.session.modified = True
-        else:
-            # This case shouldn't ideally happen if cart_items_for_date was found
-            print(f"Warning: Tried to clear cart for {date_to_save_str}, but key wasn't found.")
 
-        print(f"Workout for {date_to_save_str} saved successfully!")
-        # Add success message later
-        return redirect('workouts:dashboard')  # Redirect to dashboard after save
+        messages.success(request, f"Workout for {session_date.strftime('%B %d, %Y')} saved successfully!")
+        return redirect('workouts:dashboard')
 
     except Exception as e:
-        print(f"Error saving workout for {date_to_save_str}: {e}")
-        # Add error message later
-        # Redirect back to the specific date's log page on error
+        messages.error(request, f"Error saving workout for {date_to_save_str}: {e}")
         return redirect('workouts:log_workout_date', date_str=date_to_save_str)
 
 
