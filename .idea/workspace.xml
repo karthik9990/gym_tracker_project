@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Add workout detail monthly report which gives whole workout summary">
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added/edited Monthly Workout Report with detail summary of workouts in that monthly_report.html">
+      <change afterPath="$PROJECT_DIR$/workouts/templates/workouts/health_tools.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/monthly_report.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/monthly_report.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -203,7 +203,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745356181473</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Added/edited Monthly Workout Report with detail summary of workouts in that monthly_report.html">
+      <option name="closed" value="true" />
+      <created>1745357944476</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1745357944476</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -222,6 +230,7 @@
     <MESSAGE value="Added Exercise logged and maximum weight lifted columns to enhance user experience." />
     <MESSAGE value="Added Dark mode option to switch from classic to dark mode" />
     <MESSAGE value="Add workout detail monthly report which gives whole workout summary" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add workout detail monthly report which gives whole workout summary" />
+    <MESSAGE value="Added/edited Monthly Workout Report with detail summary of workouts in that monthly_report.html" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added/edited Monthly Workout Report with detail summary of workouts in that monthly_report.html" />
   </component>
 </project>

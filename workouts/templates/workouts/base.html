@@ -186,6 +186,10 @@
                                href="{% url 'workouts:monthly_report' %}"><i class="bi bi-calendar-week me-2"></i>Monthly
                                 Report</a></li>
                         <li>
+                            <a class="dropdown-item {% if request.resolver_match.view_name == 'workouts:health_tools' %}active{% endif %}"
+                               href="{% url 'workouts:health_tools' %}"><i class="bi bi-heart-pulse me-2"></i>Health
+                                Tools</a></li>
+                        <li>
                             <hr class="dropdown-divider">
                         </li>
                         {# Separator #}

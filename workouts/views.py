@@ -591,3 +591,36 @@ def monthly_report_view(request, year=None, month=None):
         'available_months': available_months,
     }
     return render(request, 'workouts/monthly_report.html', context)
+
+@login_required # Or remove if you want it accessible without login
+def health_tools_view(request):
+    """Displays various health calculation tools and information."""
+
+    # --- Sample Ideal Weight Data (VERY General - Add Disclaimer!) ---
+    # Based loosely on BMI ranges, adjust as needed or find better sources.
+    # Format: {'height_cm': range_start, 'kg_low': low_end, 'kg_high': high_end}
+    # IMPORTANT: This is NOT medical advice. Ranges vary hugely.
+    ideal_weight_guide = [
+        {'h_cm': 152, 'kg_low': 46, 'kg_high': 59},
+        {'h_cm': 155, 'kg_low': 48, 'kg_high': 61},
+        {'h_cm': 157, 'kg_low': 49, 'kg_high': 63},
+        {'h_cm': 160, 'kg_low': 51, 'kg_high': 66},
+        {'h_cm': 163, 'kg_low': 53, 'kg_high': 68},
+        {'h_cm': 165, 'kg_low': 54, 'kg_high': 70},
+        {'h_cm': 168, 'kg_low': 56, 'kg_high': 73},
+        {'h_cm': 170, 'kg_low': 58, 'kg_high': 75},
+        {'h_cm': 173, 'kg_low': 60, 'kg_high': 77},
+        {'h_cm': 175, 'kg_low': 61, 'kg_high': 80},
+        {'h_cm': 178, 'kg_low': 63, 'kg_high': 82},
+        {'h_cm': 180, 'kg_low': 65, 'kg_high': 85},
+        {'h_cm': 183, 'kg_low': 67, 'kg_high': 88},
+        {'h_cm': 185, 'kg_low': 69, 'kg_high': 90},
+        {'h_cm': 188, 'kg_low': 71, 'kg_high': 93},
+        {'h_cm': 191, 'kg_low': 73, 'kg_high': 96},
+    ]
+    # ------------------------------------------------------------------
+
+    context = {
+        'ideal_weight_guide': ideal_weight_guide
+    }
+    return render(request, 'workouts/health_tools.html', context)

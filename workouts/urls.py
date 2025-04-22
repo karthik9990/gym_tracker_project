@@ -16,5 +16,6 @@ urlpatterns = [
     path('stats/exercise/<int:exercise_id>/', views.exercise_stats_view, name='exercise_stats'),
     path('report/monthly/', views.monthly_report_view, name='monthly_report'),
     path('report/monthly/<int:year>/<int:month>/', views.monthly_report_view, name='monthly_report_specific'),
+    path('tools/health/', views.health_tools_view, name='health_tools'),
     path('profile/', views.profile_view, name='profile'),
 ]

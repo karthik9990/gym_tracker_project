@@ -1,0 +1,193 @@
+{% extends 'workouts/base.html' %}
+{% load static %}
+
+{% block title %}Health Tools{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Health Tools & Calculators</h2>
+
+    {# --- Disclaimer --- #}
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Important Disclaimer!</h4>
+        <p>The information and tools provided on this page (including BMI calculations and weight guides) are for general informational purposes only, and do not constitute medical advice. Body weight and health are complex and vary greatly between individuals.</p>
+        <hr>
+        <p class="mb-0">Always consult with a qualified healthcare professional for any health concerns or before making any decisions related to your health or treatment.</p>
+    </div>
+
+    <div class="row">
+
+        {# --- BMI Calculator --- #}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-calculator me-2"></i>BMI Calculator</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 row">
+                        <label for="bmiHeight" class="col-sm-3 col-form-label">Height (cm):</label>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" id="bmiHeight" placeholder="e.g., 175">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                         <label for="bmiWeight" class="col-sm-3 col-form-label">Weight (kg):</label>
+                         <div class="col-sm-9">
+                            <input type="number" class="form-control" id="bmiWeight" placeholder="e.g., 70">
+                         </div>
+                    </div>
+                    <div class="text-center mb-3">
+                         <button class="btn btn-primary" id="calculateBmiBtn">Calculate BMI</button>
+                    </div>
+                    <div id="bmiResult" class="text-center fw-bold fs-5 mt-3" style="min-height: 50px;">
+                        {#{/* Result appears here */}#}
+                    </div>
+                     <div id="bmiInterpretation" class="text-center text-muted small">
+                         {#{/* Interpretation appears here */}#}
+                     </div>
+                </div>
+            </div>
+        </div>{# End BMI Calc Col #}
+
+        {# --- Unit Converter --- #}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                 <div class="card-header">
+                     <h5 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i>Weight Converter</h5>
+                 </div>
+                 <div class="card-body">
+                     <div class="mb-3">
+                        <label for="weightLbs" class="form-label">Pounds (lbs):</label>
+                        <input type="number" step="0.1" class="form-control" id="weightLbs" placeholder="Enter lbs">
+                     </div>
+                      <div class="mb-3 text-center fs-4">
+                          <i class="bi bi-arrow-down-up"></i>
+                      </div>
+                     <div class="mb-3">
+                        <label for="weightKg" class="form-label">Kilograms (kg):</label>
+                        <input type="number" step="0.1" class="form-control" id="weightKg" placeholder="Enter kg">
+                     </div>
+                     <div class="form-text text-center">
+                         Enter a value in either field to convert.
+                     </div>
+                 </div>
+            </div>
+        </div> {# End Converter Col #}
+
+    </div> {# End Row #}
+
+
+    {# --- Ideal Weight Guide Table --- #}
+    <div class="card mt-4 shadow-sm">
+         <div class="card-header">
+             <h5 class="mb-0"><i class="bi bi-table me-2"></i>Weight Guide (General Reference Only)</h5>
+         </div>
+         <div class="card-body">
+             <p class="card-text text-muted small">This table provides VERY general weight ranges based on height, often linked to BMI categories. Individual ideal weights vary significantly based on muscle mass, body composition, age, sex, and health status. See disclaimer above.</p>
+            <div class="table-responsive">
+                <table class="table table-sm table-striped table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="text-center">Height (cm)</th>
+                            <th scope="col" class="text-center">Approx. Healthy Weight Range (kg)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in ideal_weight_guide %}
+                        <tr>
+                            <td class="text-center">{{ item.h_cm }} cm</td>
+                            <td class="text-center">{{ item.kg_low }} - {{ item.kg_high }} kg</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center text-muted">Weight guide data not available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+         </div>
+    </div>{# End Weight Guide Card #}
+
+</div> {# End container #}
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // --- BMI Calculator ---
+    const bmiHeightInput = document.getElementById('bmiHeight');
+    const bmiWeightInput = document.getElementById('bmiWeight');
+    const calculateBmiBtn = document.getElementById('calculateBmiBtn');
+    const bmiResultEl = document.getElementById('bmiResult');
+    const bmiInterpretationEl = document.getElementById('bmiInterpretation');
+
+    calculateBmiBtn.addEventListener('click', () => {
+        const heightCm = parseFloat(bmiHeightInput.value);
+        const weightKg = parseFloat(bmiWeightInput.value);
+
+        bmiResultEl.textContent = ''; // Clear previous results
+        bmiInterpretationEl.textContent = '';
+
+        if (isNaN(heightCm) || isNaN(weightKg) || heightCm <= 0 || weightKg <= 0) {
+            bmiResultEl.textContent = 'Please enter valid height and weight.';
+            bmiResultEl.style.color = 'red';
+            return;
+        }
+
+        const heightM = heightCm / 100;
+        const bmi = weightKg / (heightM * heightM);
+        const bmiRounded = bmi.toFixed(1); // Round to one decimal place
+
+        bmiResultEl.textContent = `Your BMI: ${bmiRounded}`;
+        bmiResultEl.style.color = 'inherit'; // Reset color
+
+        // Interpretation (adjust ranges as needed)
+        let interpretation = '';
+        let interpretationColor = 'inherit';
+        if (bmi < 18.5) {
+            interpretation = 'Category: Underweight';
+            interpretationColor = 'blue';
+        } else if (bmi >= 18.5 && bmi < 25) {
+            interpretation = 'Category: Normal weight';
+            interpretationColor = 'green';
+        } else if (bmi >= 25 && bmi < 30) {
+            interpretation = 'Category: Overweight';
+            interpretationColor = 'orange';
+        } else { // bmi >= 30
+            interpretation = 'Category: Obesity';
+            interpretationColor = 'red';
+        }
+        bmiInterpretationEl.textContent = interpretation;
+        bmiInterpretationEl.style.color = interpretationColor; // Apply color
+    });
+
+    // --- Unit Converter ---
+    const weightLbsInput = document.getElementById('weightLbs');
+    const weightKgInput = document.getElementById('weightKg');
+    const lbsToKgFactor = 0.453592;
+    const kgToLbsFactor = 2.20462;
+
+    weightLbsInput.addEventListener('input', () => {
+        const lbs = parseFloat(weightLbsInput.value);
+        if (!isNaN(lbs)) {
+            weightKgInput.value = (lbs * lbsToKgFactor).toFixed(2); // Convert and format
+        } else {
+            weightKgInput.value = ''; // Clear kg if lbs is not a number
+        }
+    });
+
+    weightKgInput.addEventListener('input', () => {
+         const kg = parseFloat(weightKgInput.value);
+         if (!isNaN(kg)) {
+             weightLbsInput.value = (kg * kgToLbsFactor).toFixed(2); // Convert and format
+         } else {
+             weightLbsInput.value = ''; // Clear lbs if kg is not a number
+         }
+    });
+
+});
+</script>
+{% endblock %}
