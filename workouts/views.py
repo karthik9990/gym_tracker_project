@@ -1,4 +1,5 @@
 # workouts/views.py
+import pytz
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseNotAllowed
 from django.contrib.auth import login
@@ -11,6 +12,9 @@ from .models import Exercise, WorkoutSession, WorkoutLog
 import datetime
 import calendar
 import traceback  # For detailed error logging
+from django.db.models import Count
+from .forms import UserProfileForm  # Import the new form
+from .models import UserProfile  # Import the model
 
 from .forms import CustomUserCreationForm
 
@@ -40,6 +44,10 @@ def dashboard_view(request):
         user=request.user,
         date__year=year,
         date__month=month
+    ).annotate(
+        log_count=Count('logs')  # 'logs' is the related_name from WorkoutLog model
+    ).filter(
+        log_count__gt=0  # Only include sessions where log_count is greater than 0
     )
     sessions_map = {session.date: session for session in user_sessions}
 
@@ -62,6 +70,7 @@ def dashboard_view(request):
         'current_month_date': current_month_date,
         'prev_month_date': prev_month_date,
         'next_month_date': next_month_date,
+        'todays_date_str': timezone.now().strftime('%Y-%m-%d'),
     }
     return render(request, 'workouts/dashboard.html', context)
 
@@ -368,3 +377,33 @@ def delete_workout_log_view(request, log_id):
 
     # Redirect back to the workout detail page for the session it belonged to
     return redirect('workouts:workout_detail', session_id=session_id)
+
+
+@login_required
+def profile_view(request):
+    # Get the user's profile, creating if it somehow doesn't exist (though signal should handle it)
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated.')
+            # Activate the new timezone immediately for this request if needed
+            try:
+                timezone.activate(pytz.timezone(profile.timezone))
+            except pytz.UnknownTimeZoneError:
+                messages.warning(request, "Selected timezone is invalid, using default.")
+                timezone.deactivate()  # Revert to default
+
+            return redirect('workouts:profile')  # Redirect back to profile page
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:  # GET request
+        form = UserProfileForm(instance=profile)
+
+    context = {
+        'form': form,
+        'profile': profile  # Pass profile for display if needed
+    }
+    return render(request, 'workouts/profile.html', context)

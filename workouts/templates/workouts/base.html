@@ -28,6 +28,10 @@
                     <a class="nav-link {% if request.resolver_match.view_name == 'workouts:log_workout_date' or request.resolver_match.view_name == 'workouts:log_workout_today' %}active{% endif %}"
                        href="{% url 'workouts:log_workout_today' %}">Log Workout</a>
                 </li>
+                <!--<li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'workouts:profile' %}active{% endif %}"
+                       href="{% url 'workouts:profile' %}">Profile</a>
+                </li>
                 <li class="nav-item d-flex align-items-center ms-lg-3"> {# Added margin for spacing #}
                     <span class="navbar-text me-3">
                         Welcome, {{ user.username }}!
@@ -38,6 +42,38 @@
                             Logout
                         </button>
                     </form>
+                </li>-->
+                <li class="nav-item dropdown">
+                    {# This link is the dropdown trigger - uses username #}
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle me-1"></i> {# Optional: Person Icon #}
+                        {{ user.username }}
+                    </a>
+                    {# The Dropdown Menu itself - aligned to the end (right) #}
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
+                        {# Profile Link #}
+                        <li>
+                            <a class="dropdown-item {% if request.resolver_match.view_name == 'workouts:profile' %}active{% endif %}"
+                               href="{% url 'workouts:profile' %}">
+                                <i class="bi bi-person-fill me-2"></i>Profile {# Optional: Icon #}
+                            </a>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        {# Separator #}
+                        {# Logout Button (within a form, styled as a dropdown item) #}
+                        <li>
+                            <form method="post" action="{% url 'logout' %}" class="d-inline"> {# Form is needed #}
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout {# Optional: Icon #}
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </li>
                 {% else %}
                 <li class="nav-item">

@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UsernameField
 from django.contrib.auth.models import User
 from django.forms.widgets import TextInput, EmailInput, PasswordInput
+from .models import UserProfile
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -57,3 +58,12 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ('timezone',)  # Only allow editing the timezone field for now
+        # widgets = { # Optional: Use a better widget if desired
+        #     'timezone': forms.Select(attrs={'class': 'form-select'})
+        # }

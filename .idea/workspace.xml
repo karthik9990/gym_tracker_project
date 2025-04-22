@@ -4,10 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Signup page is done successful">
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Delete button added Successfully to workout_detail.html">
+      <change afterPath="$PROJECT_DIR$/workouts/middleware.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/workouts/templates/workouts/profile.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/workout_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/workout_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gym_tracker_project/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
     </list>
@@ -131,7 +136,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745277846798</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Delete button added Successfully to workout_detail.html">
+      <option name="closed" value="true" />
+      <created>1745285702137</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1745285702137</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -141,6 +154,7 @@
     <MESSAGE value="Now the date cannot be future , only past and todays date can be entered." />
     <MESSAGE value="calendar is now working&#10;next steps are signup, make login page design" />
     <MESSAGE value="Signup page is done successful" />
-    <option name="LAST_COMMIT_MESSAGE" value="Signup page is done successful" />
+    <MESSAGE value="Delete button added Successfully to workout_detail.html" />
+    <option name="LAST_COMMIT_MESSAGE" value="Delete button added Successfully to workout_detail.html" />
   </component>
 </project>

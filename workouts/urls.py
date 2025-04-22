@@ -13,4 +13,5 @@ urlpatterns = [
     path('save/', views.save_workout_view, name='save_workout'),
     path('session/<int:session_id>/', views.workout_detail_view, name='workout_detail'),
     path('log/delete/<int:log_id>/', views.delete_workout_log_view, name='delete_workout_log'),
+    path('profile/', views.profile_view, name='profile'),
 ]
