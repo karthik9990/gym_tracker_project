@@ -1,0 +1,75 @@
+{% extends 'workouts/base.html' %}
+
+{% block title %}Progress Stats - {{ exercise.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center"> {# Flexbox for title and PR #}
+        <div>
+            <h2>Progress for: {{ exercise.name }}</h2>
+            <p class="text-muted mb-0"><em>Chart shows maximum weight (kg) lifted per day.</em></p>
+        </div>
+        {# --- Display Personal Record --- #}
+        <div>
+            {% if personal_record is not None %}
+                <div class="card text-center bg-light border-primary">
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1 text-primary">Personal Record</h6>
+                        <p class="card-text fs-4 fw-bold mb-0">{{ personal_record }} kg</p>
+                    </div>
+                </div>
+            {% else %}
+                 {# Optionally show placeholder if no PR yet #}
+                 {# <span class="text-muted">No PR recorded yet.</span> #}
+            {% endif %}
+        </div>
+        {# --- End PR Display --- #}
+    </div>
+    <hr>
+
+    {% if has_data %}
+        <canvas id="progressChart" width="400" height="200"></canvas>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            No weight data found for this exercise yet. Keep logging to see your progress and set a PR!
+        </div>
+    {% endif %}
+
+    {# ... Back button ... #}
+    <div class="mt-4">
+        <a href="{{ request.META.HTTP_REFERER|default:request.build_absolute_uri }}" class="btn btn-secondary">Back</a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+    {# --- Keep the Chart.js script exactly as before --- #}
+    {% if has_data %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            const chartDates = JSON.parse('{{ dates_json|safe }}');
+            const chartWeights = JSON.parse('{{ weights_json|safe }}');
+
+            const progressChart = new Chart(ctx, {
+                type: 'line',
+                data: { /* ... data ... */
+                    labels: chartDates,
+                    datasets: [{
+                        label: 'Max Weight Lifted (kg)',
+                        data: chartWeights,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: { /* ... options ... */
+                    responsive: true,
+                    scales: { y: { beginAtZero: false, title: { display: true, text: 'Weight (kg)'} }, x: { title: { display: true, text: 'Date'} } },
+                    plugins: { title: { display: true, text: '{{ exercise.name }} - Max Weight Progress' }, legend: { display: true } }
+                }
+            });
+        });
+    </script>
+    {% endif %}
+{% endblock %}

@@ -37,7 +37,10 @@
         <tbody>
         {% for log in logs %}
         <tr>
-            <td><strong>{{ log.exercise.name }}</strong></td>
+            <td><strong><a href="{% url 'workouts:exercise_stats' exercise_id=log.exercise.id %}"
+                           title="View progress chart for {{ log.exercise.name }}">
+                {{ log.exercise.name }}
+            </a></strong></td>
             <td>{{ log.sets|default:"N/A" }}</td>
             <td>{{ log.reps|default:"N/A" }}</td>
             <td>{{ log.weight|default:"N/A" }}</td>
