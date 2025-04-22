@@ -1,4 +1,5 @@
 {% extends 'workouts/base.html' %}
+{% load static %} {# Ensure static is loaded if needed elsewhere in base #}
 
 {% block title %}Monthly Report - {{ report_month_name }} {{ report_year }}{% endblock %}
 
@@ -8,117 +9,112 @@
     <hr>
 
     {# --- Month/Year Selection Form --- #}
-    <form method="GET" action="{% url 'workouts:monthly_report' %}"
-          class="row g-3 align-items-center mb-4 p-3 border rounded bg-light">
+    <form method="GET" action="{% url 'workouts:monthly_report' %}" class="row g-3 align-items-center mb-4 p-3 border rounded bg-light shadow-sm">
         <div class="col-auto">
-            <label for="monthSelect" class="form-label">Select Month:</label>
+            <label for="monthSelect" class="form-label fw-bold">Select Month:</label>
         </div>
         <div class="col-auto">
-            <select name="month" id="monthSelect" class="form-select">
+            <select name="month" id="monthSelect" class="form-select form-select-sm"> {# Smaller select #}
                 {% for month_num, month_name in available_months %}
-                <option value="{{ month_num }}" {% if month_num == report_month %}selected{% endif %}>{{ month_name }}
-                </option>
+                    <option value="{{ month_num }}" {% if month_num == report_month %}selected{% endif %}>{{ month_name }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="col-auto">
-            <label for="yearSelect" class="form-label">Year:</label>
+             <label for="yearSelect" class="form-label fw-bold">Year:</label>
+        </div>
+         <div class="col-auto">
+             <select name="year" id="yearSelect" class="form-select form-select-sm"> {# Smaller select #}
+                 {% for yr in available_years %}
+                    <option value="{{ yr }}" {% if yr == report_year %}selected{% endif %}>{{ yr }}</option>
+                 {% endfor %}
+             </select>
         </div>
         <div class="col-auto">
-            <select name="year" id="yearSelect" class="form-select">
-                {% for yr in available_years %}
-                <option value="{{ yr }}" {% if yr == report_year %}selected{% endif %}>{{ yr }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">View Report</button>
+            <button type="submit" class="btn btn-primary btn-sm">View Report</button> {# Smaller button #}
         </div>
     </form>
 
-    {# --- Report Summary --- #}
-    <h3 class="mb-3">Report for: {{ report_month_name }} {{ report_year }}</h3>
-
-    <div class="row">
-        {# Summary Cards #}
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Workout Days</h5>
-                    <p class="card-text fs-1 fw-bold">{{ total_workout_days }}</p>
-                </div>
-                <div class="card-footer text-muted">
-                    Total days with logged workouts
-                </div>
-            </div>
-        </div>
-
-        {# Workout Dates List (Optional - can get long) #}
-        {% if workout_dates %}
-        <div class="col-md-8 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Dates Worked Out</h5>
-                    <ul class="list-inline">
-                        {% for w_date in workout_dates %}
-                        <li class="list-inline-item">
-                            <span class="badge bg-secondary">{{ w_date|date:"M d" }}</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
+    {# --- Report Title & Day Count --- #}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Report for: {{ report_month_name }} {{ report_year }}</h3>
+        {% if total_workout_days > 0 %}
+             <span class="badge bg-success rounded-pill fs-6">
+                 {{ total_workout_days }} Workout Day{{ total_workout_days|pluralize }}
+             </span>
         {% endif %}
     </div>
 
-
-    {# Exercise Summary Table #}
-    <h4 class="mt-4">Exercises Logged Summary</h4>
-    {% if exercise_summary %}
-    <div class="table-responsive">
-        <table class="table table-sm table-striped table-hover">
-            <thead>
-            <tr>
-                <th>Exercise</th>
-                <th>Times Logged</th>
-                <th>Total Sets (Approx)</th>
-                <th>Total Reps (Approx)</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for name, details in exercise_summary %}
-            <tr>
-                <td>
-                    {% if details.id %} {# Check if ID exists #}
-                    <a href="{% url 'workouts:exercise_stats' exercise_id=details.id %}"
-                       title="View stats for {{ name }}">
-                        {{ name }}
-                    </a>
-                    {% else %}
-                    {{ name }} {# Fallback if ID somehow missing #}
-                    {% endif %}
-                </td>
-
-                <td>{{ details.count }}</td>
-                <td>{{ details.sets }}</td>
-                <td>{{ details.reps }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    {# --- Detailed Daily Breakdown --- #}
+    {% if sessions %}
+        {# Loop through each session (ordered by date from the view) #}
+        {% for session in sessions %}
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2"> {# Reduced padding #}
+                     <h5 class="mb-0">{{ session.date|date:"l, F j, Y" }}</h5> {# Format date nicely #}
+                     {# Link to view/edit this specific session #}
+                     <a href="{% url 'workouts:workout_detail' session_id=session.id %}" class="btn btn-outline-secondary btn-sm py-1" title="View or Edit this Session's Details"> {# Smaller button #}
+                         View/Edit Session
+                     </a>
+                </div>
+                <div class="card-body p-0"> {# Remove body padding for table #}
+                    {# Access prefetched logs efficiently #}
+                    {% with logs=session.logs.all %}
+                        {% if logs %}
+                            <div class="table-responsive"> {# Ensure table scrolls on small screens #}
+                                <table class="table table-sm table-striped table-hover mb-0"> {# Smaller table, no bottom margin #}
+                                    <thead class="table-light"> {# Light header for contrast #}
+                                        <tr>
+                                            <th scope="col" style="width: 30%;">Exercise</th> {# Approximate width #}
+                                            <th scope="col" class="text-center">Sets</th> {# Centered #}
+                                            <th scope="col" class="text-center">Reps</th> {# Centered #}
+                                            <th scope="col" class="text-center">Weight (kg)</th> {# Centered #}
+                                            <th scope="col">Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for log in logs %}
+                                        <tr>
+                                            <td>
+                                                 {# Link to exercise stats page #}
+                                                 <a href="{% url 'workouts:exercise_stats' exercise_id=log.exercise.id %}" title="View stats for {{ log.exercise.name }}">
+                                                     {{ log.exercise.name }}
+                                                 </a>
+                                            </td>
+                                            <td class="text-center">{{ log.sets|default:"-" }}</td>
+                                            <td class="text-center">{{ log.reps|default:"-" }}</td>
+                                            <td class="text-center">{{ log.weight|default:"-" }}</td>
+                                            {# Use linebreaksbr for notes, default to empty string #}
+                                            <td>{{ log.notes|default:""|linebreaksbr }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div> {# End table-responsive #}
+                        {% else %}
+                            <p class="card-text p-3 text-muted mb-0">No exercises were recorded for this session.</p>
+                        {% endif %}
+                    {% endwith %} {# End with logs #}
+                </div>
+                {# Optionally add session notes in the footer #}
+                {% if session.notes %}
+                <div class="card-footer text-muted small py-1"> {# Reduced padding #}
+                    <strong>Session Notes:</strong> {{ session.notes|linebreaksbr }}
+                </div>
+                {% endif %}
+            </div> {# End card #}
+        {% endfor %} {# End session loop #}
     {% else %}
-    <p class="text-muted">No exercises logged in {{ report_month_name }} {{ report_year }}.</p>
+        {# Message if no sessions found for the selected month/year #}
+        <div class="alert alert-info mt-4" role="alert">
+            You didn't log any workouts in {{ report_month_name }} {{ report_year }}.
+        </div>
     {% endif %}
 
 
-    <div class="mt-4">
+    <div class="mt-4 mb-5"> {# Add bottom margin #}
         <a href="{% url 'workouts:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
     </div>
 
 </div> {# End container #}
 {% endblock %}
-
-{# Note: Getting exercise_id for the link in the summary table requires modifying the view #}
-{# to include the ID in the exercise_summary dictionary, e.g., fetch distinct exercises first #}
