@@ -1,24 +1,24 @@
 # workouts/views.py
-import pytz
-from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpResponseNotAllowed
-from django.contrib.auth import login
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages  # Import the messages framework
-from django.utils import timezone
-from django.urls import reverse
-from .models import Exercise, WorkoutSession, WorkoutLog
-import datetime
 import calendar
-from .models import Exercise, WorkoutLog
-from django.db.models.functions import TruncDate
-import traceback  # For detailed error logging
-from django.db.models import Count, Max
-from .forms import UserProfileForm  # Import the new form
-from .models import UserProfile  # Import the model
+import datetime
 import json
-from .forms import CustomUserCreationForm
+import pytz
+import traceback
+from decimal import Decimal
+
+from django.contrib import messages
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Count, Max
+from django.db.models.functions import TruncDate
+from django.http import HttpResponseNotAllowed
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.utils import timezone
+
+from .forms import CustomUserCreationForm, UserProfileForm
+from .models import Exercise, WorkoutSession, WorkoutLog, UserProfile
 
 
 # --- Homepage View ---
@@ -320,13 +320,35 @@ def save_workout_view(request):
 @login_required
 def workout_detail_view(request, session_id):
     workout_session = get_object_or_404(WorkoutSession, pk=session_id, user=request.user)
-    session_logs = workout_session.logs.all().order_by('id')  # Ensure consistent order
+    # Fetch logs once
+    session_logs = workout_session.logs.all().order_by('id')
+
+    # --- Calculate Number of Exercises ---
+    log_count = session_logs.count()
+    # -----------------------------------
+
+    # --- Find Heaviest Lift ---
+    heaviest_lift_weight = None
+    heaviest_lift_exercise_name = None
+    if log_count > 0: # Optimization: Only query max weight if logs exist
+        max_weight_aggregate = session_logs.filter(weight__isnull=False).aggregate(max_w=Max('weight'))
+        if max_weight_aggregate and max_weight_aggregate['max_w'] is not None:
+            heaviest_lift_weight = max_weight_aggregate['max_w']
+            # Find the exercise name (get first log matching the max weight)
+            first_log_with_max = session_logs.filter(weight=heaviest_lift_weight).select_related('exercise').first()
+            if first_log_with_max:
+                heaviest_lift_exercise_name = first_log_with_max.exercise.name
+    # --------------------------
 
     context = {
         'session': workout_session,
         'logs': session_logs,
+        'log_count': log_count, # Pass count
+        'heaviest_lift_weight': heaviest_lift_weight, # Pass max weight
+        'heaviest_lift_exercise_name': heaviest_lift_exercise_name, # Pass exercise name
     }
     return render(request, 'workouts/workout_detail.html', context)
+
 
 
 def signup_view(request):
@@ -415,76 +437,64 @@ def profile_view(request):
 def exercise_stats_view(request, exercise_id):
     exercise = get_object_or_404(Exercise, pk=exercise_id)
 
-    # --- MODIFIED QUERY ---
-    # Removed the first .annotate() with TruncDate
-    # Group directly by the session's date field
-    logs = WorkoutLog.objects.filter(
+    # --- Fetch ALL logs for the user and this exercise ---
+    # We need sets, reps, weight, and date to calculate volume per day
+    all_logs = WorkoutLog.objects.filter(
         session__user=request.user,
         exercise=exercise,
+        sets__isnull=False,  # Ensure all needed fields exist for volume calc
+        reps__isnull=False,
         weight__isnull=False
-    ).values(
-        'session__date'  # Group by the actual date field
-    ).annotate(
-        max_weight=Max('weight')  # Find the max weight lifted ON that specific date
-    ).order_by('session__date')  # Order chronologically by date
-    # --- END MODIFIED QUERY ---
+    ).select_related('session').order_by('session__date')  # Get session data efficiently
 
-    # Prepare data for Chart.js
-    # Adjust the key used to extract dates from the 'logs' dictionary
-    dates = [log['session__date'].strftime('%Y-%m-%d') for log in logs]  # Use 'session__date' key
-    weights = [float(log['max_weight']) for log in logs]
+    # --- Process data for charts (Weight and Volume) ---
+    # Use dictionaries to aggregate data per date
+    daily_max_weight = {}
+    daily_volume = {}
 
-    context = {
-        'exercise': exercise,
-        'dates_json': json.dumps(dates),
-        'weights_json': json.dumps(weights),
-        'has_data': bool(logs)
-    }
-    return render(request, 'workouts/exercise_stats.html', context)
+    for log in all_logs:
+        log_date = log.session.date
+        log_date_str = log_date.strftime('%Y-%m-%d')  # Consistent date string
 
-@login_required
-def exercise_stats_view(request, exercise_id):
-    exercise = get_object_or_404(Exercise, pk=exercise_id)
+        # Calculate volume for this specific log entry
+        try:
+            volume = Decimal(log.sets) * Decimal(log.reps) * Decimal(log.weight)
+        except (TypeError, ValueError):
+            volume = Decimal('0.0')  # Ignore if data is invalid
 
-    # --- Query for Chart Data (as before) ---
-    logs_for_chart = WorkoutLog.objects.filter(
-        session__user=request.user,
-        exercise=exercise,
-        weight__isnull=False
-    ).values(
-        'session__date'
-    ).annotate(
-        max_weight_on_date=Max('weight') # Renamed for clarity
-    ).order_by('session__date')
+        # Aggregate Max Weight per day
+        current_max = daily_max_weight.get(log_date_str, Decimal('0.0'))
+        if log.weight > current_max:
+            daily_max_weight[log_date_str] = log.weight
 
-    # Prepare data for Chart.js
-    dates = [log['session__date'].strftime('%Y-%m-%d') for log in logs_for_chart]
-    weights = [float(log['max_weight_on_date']) for log in logs_for_chart]
-    has_data = bool(logs_for_chart) # Check if there's chart data
+        # Aggregate Total Volume per day
+        current_volume = daily_volume.get(log_date_str, Decimal('0.0'))
+        daily_volume[log_date_str] = current_volume + volume
 
-    # --- Calculate Personal Record (PR) ---
-    personal_record = None # Default to None
-    # Query all logs for this user/exercise with weight, find the max weight overall
+    # Prepare data for Chart.js - Sort by date string keys
+    chart_dates = sorted(daily_max_weight.keys())  # Use dates from max weight dict (or volume)
+    chart_weights = [float(daily_max_weight[dt]) for dt in chart_dates]
+    chart_volumes = [float(daily_volume.get(dt, 0.0)) for dt in chart_dates]  # Get volume for sorted dates
+
+    has_data = bool(chart_dates)  # Check if we have any dates to plot
+
+    # --- Calculate Personal Record (PR) - Max Weight (Keep as before) ---
+    personal_record = None
     pr_query = WorkoutLog.objects.filter(
         session__user=request.user,
         exercise=exercise,
         weight__isnull=False
-    ).aggregate(
-        max_overall_weight=Max('weight') # Get the single max value
-    )
-
-    # The result of aggregate is a dictionary, e.g., {'max_overall_weight': Decimal('150.00')}
+    ).aggregate(max_overall_weight=Max('weight'))
     if pr_query and pr_query['max_overall_weight'] is not None:
-         # Convert Decimal to float or keep as Decimal for display
-         personal_record = pr_query['max_overall_weight']
-         # Optional: Find the date of the PR (more complex query if needed)
+        personal_record = pr_query['max_overall_weight']
     # -------------------------------------
 
     context = {
         'exercise': exercise,
-        'dates_json': json.dumps(dates),
-        'weights_json': json.dumps(weights),
+        'dates_json': json.dumps(chart_dates),  # Dates for both charts
+        'weights_json': json.dumps(chart_weights),  # Max Weight data
+        'volumes_json': json.dumps(chart_volumes),  # Volume data
         'has_data': has_data,
-        'personal_record': personal_record, # <-- Pass PR to template
+        'personal_record': personal_record,
     }
     return render(request, 'workouts/exercise_stats.html', context)

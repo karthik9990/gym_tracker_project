@@ -11,7 +11,31 @@
         </ol>
     </nav>
 
-    <h2>Workout Details</h2>
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2"> {# flex-wrap allows wrapping on small screens #}
+        <h2 class="me-3">Workout Details</h2> {# Add margin-end #}
+
+        <div class="d-flex align-items-center"> {# Group the metrics #}
+            {# Display Log Count #}
+            {% if log_count > 0 %}
+            <div class="text-center border-end pe-3 me-3"> {# Center text, add border/padding #}
+                 <span class="text-muted d-block small">Exercises Logged</span> {# Smaller label #}
+                 <strong class="fs-5">{{ log_count }}</strong>
+            </div>
+            {% endif %}
+
+            {# Display Heaviest Lift #}
+            {% if heaviest_lift_weight is not None %}
+            <div class="text-center"> {# Center text #}
+                 <span class="text-muted d-block small">Heaviest Lift</span> {# Smaller label #}
+                 <strong class="fs-5">{{ heaviest_lift_weight|floatformat:0 }} kg</strong>
+                 {% if heaviest_lift_exercise_name %}
+                 <small class="d-block text-muted">({{ heaviest_lift_exercise_name }})</small>
+                 {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
     <p><strong>Date:</strong> {{ session.date|date:"F d, Y" }}</p>
     {% if session.notes %}
     <p><strong>Session Notes:</strong></p>
