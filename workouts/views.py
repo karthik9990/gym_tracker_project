@@ -5,7 +5,6 @@ import json
 import pytz
 import traceback
 from decimal import Decimal
-
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -16,9 +15,9 @@ from django.http import HttpResponseNotAllowed
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-
 from .forms import CustomUserCreationForm, UserProfileForm
 from .models import Exercise, WorkoutSession, WorkoutLog, UserProfile
+from collections import defaultdict
 
 
 # --- Homepage View ---
@@ -498,3 +497,112 @@ def exercise_stats_view(request, exercise_id):
         'personal_record': personal_record,
     }
     return render(request, 'workouts/exercise_stats.html', context)
+
+@login_required
+def monthly_report_view(request, year=None, month=None):
+    """Generates and displays a monthly workout report."""
+
+    # --- Determine Target Year and Month ---
+    if year is None or month is None:
+        # If not specified in URL, check for form submission (GET request)
+        year_str = request.GET.get('year')
+        month_str = request.GET.get('month')
+        if year_str and month_str:
+            try:
+                year = int(year_str)
+                month = int(month_str)
+                # Redirect to the cleaner URL with year/month in path
+                return redirect('workouts:monthly_report_specific', year=year, month=month)
+            except ValueError:
+                # Invalid form data, default to current month
+                today = timezone.now().date()
+                year = today.year
+                month = today.month
+        else:
+            # Default to current month if no URL params and no form data
+            today = timezone.now().date()
+            year = today.year
+            month = today.month
+    else:
+         # Year/Month provided in URL, validate them
+        try:
+            # Ensure month is valid
+            if not (1 <= month <= 12):
+                 raise ValueError("Invalid Month")
+            # Ensure year is reasonable (optional, but good)
+            current_year = timezone.now().year
+            if not (current_year - 10 <= year <= current_year + 1): # Example: Limit to +/- 10 years
+                raise ValueError("Invalid Year")
+            # Check if date is valid
+            target_date = datetime.date(year, month, 1)
+        except ValueError as e:
+             messages.error(request, f"Invalid date specified: {e}. Showing current month.")
+             today = timezone.now().date()
+             year = today.year
+             month = today.month
+
+    # --- Fetch Data for the Target Month ---
+    try:
+        start_date = datetime.date(year, month, 1)
+        # Find the first day of the next month to get the end date (exclusive)
+        if month == 12:
+            end_date = datetime.date(year + 1, 1, 1)
+        else:
+            end_date = datetime.date(year, month + 1, 1)
+
+        # Get all sessions for the user within the date range
+        sessions_in_month = WorkoutSession.objects.filter(
+            user=request.user,
+            date__gte=start_date,
+            date__lt=end_date # Greater than or equal to start, Less than end
+        ).order_by('date')
+
+        # Get all logs related to these sessions efficiently
+        logs_in_month = WorkoutLog.objects.filter(
+            session__in=sessions_in_month
+        ).select_related('exercise') # Fetch exercise name efficiently
+
+    except Exception as e:
+         messages.error(request, f"Error fetching report data: {e}")
+         sessions_in_month = WorkoutSession.objects.none() # Empty queryset
+         logs_in_month = WorkoutLog.objects.none()
+
+    # --- Process Data for Summary ---
+    workout_days = sessions_in_month.values_list('date', flat=True).distinct()
+    total_workout_days = len(workout_days)
+
+    # Fetch distinct exercises logged in the month to get IDs
+    distinct_exercise_ids = logs_in_month.values_list('exercise_id', flat=True).distinct()
+    exercises_in_month = Exercise.objects.filter(pk__in=distinct_exercise_ids)
+    exercise_id_map = {ex.name: ex.id for ex in exercises_in_month}  # Map name to ID
+
+    # --- Process Data for Summary ---
+    exercise_summary = defaultdict(lambda: {'count': 0, 'sets': 0, 'reps': 0, 'id': None})  # Add 'id' key
+    for log in logs_in_month:
+        ex_name = log.exercise.name
+        summary = exercise_summary[ex_name]
+        summary['id'] = exercise_id_map.get(ex_name)  # Store the ID
+        summary['count'] += 1
+        if log.sets: summary['sets'] += log.sets
+        if log.reps: summary['reps'] += log.reps
+
+    # Sort summary by most frequently logged exercise
+    sorted_exercise_summary = sorted(exercise_summary.items(), key=lambda item: item[1]['count'], reverse=True)
+
+    # --- Prepare Context ---
+    # For month selection dropdowns
+    current_year = timezone.now().year
+    available_years = range(current_year, current_year - 6, -1) # Example: last 5 years + current
+    available_months = [(m, datetime.date(year, m, 1).strftime('%B')) for m in range(1, 13)]
+
+    context = {
+        'report_year': year,
+        'report_month': month,
+        'report_month_name': start_date.strftime('%B') if 'start_date' in locals() else '',
+        'total_workout_days': total_workout_days,
+        'workout_dates': sorted(list(workout_days)), # List of specific dates worked out
+        'exercise_summary': sorted_exercise_summary, # List of tuples: (name, {details})
+        'available_years': available_years,
+        'available_months': available_months,
+    }
+    return render(request, 'workouts/monthly_report.html', context)

@@ -1,0 +1,124 @@
+{% extends 'workouts/base.html' %}
+
+{% block title %}Monthly Report - {{ report_month_name }} {{ report_year }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Monthly Workout Report</h2>
+    <hr>
+
+    {# --- Month/Year Selection Form --- #}
+    <form method="GET" action="{% url 'workouts:monthly_report' %}"
+          class="row g-3 align-items-center mb-4 p-3 border rounded bg-light">
+        <div class="col-auto">
+            <label for="monthSelect" class="form-label">Select Month:</label>
+        </div>
+        <div class="col-auto">
+            <select name="month" id="monthSelect" class="form-select">
+                {% for month_num, month_name in available_months %}
+                <option value="{{ month_num }}" {% if month_num == report_month %}selected{% endif %}>{{ month_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <label for="yearSelect" class="form-label">Year:</label>
+        </div>
+        <div class="col-auto">
+            <select name="year" id="yearSelect" class="form-select">
+                {% for yr in available_years %}
+                <option value="{{ yr }}" {% if yr == report_year %}selected{% endif %}>{{ yr }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">View Report</button>
+        </div>
+    </form>
+
+    {# --- Report Summary --- #}
+    <h3 class="mb-3">Report for: {{ report_month_name }} {{ report_year }}</h3>
+
+    <div class="row">
+        {# Summary Cards #}
+        <div class="col-md-4 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Workout Days</h5>
+                    <p class="card-text fs-1 fw-bold">{{ total_workout_days }}</p>
+                </div>
+                <div class="card-footer text-muted">
+                    Total days with logged workouts
+                </div>
+            </div>
+        </div>
+
+        {# Workout Dates List (Optional - can get long) #}
+        {% if workout_dates %}
+        <div class="col-md-8 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Dates Worked Out</h5>
+                    <ul class="list-inline">
+                        {% for w_date in workout_dates %}
+                        <li class="list-inline-item">
+                            <span class="badge bg-secondary">{{ w_date|date:"M d" }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+
+    {# Exercise Summary Table #}
+    <h4 class="mt-4">Exercises Logged Summary</h4>
+    {% if exercise_summary %}
+    <div class="table-responsive">
+        <table class="table table-sm table-striped table-hover">
+            <thead>
+            <tr>
+                <th>Exercise</th>
+                <th>Times Logged</th>
+                <th>Total Sets (Approx)</th>
+                <th>Total Reps (Approx)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for name, details in exercise_summary %}
+            <tr>
+                <td>
+                    {% if details.id %} {# Check if ID exists #}
+                    <a href="{% url 'workouts:exercise_stats' exercise_id=details.id %}"
+                       title="View stats for {{ name }}">
+                        {{ name }}
+                    </a>
+                    {% else %}
+                    {{ name }} {# Fallback if ID somehow missing #}
+                    {% endif %}
+                </td>
+
+                <td>{{ details.count }}</td>
+                <td>{{ details.sets }}</td>
+                <td>{{ details.reps }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No exercises logged in {{ report_month_name }} {{ report_year }}.</p>
+    {% endif %}
+
+
+    <div class="mt-4">
+        <a href="{% url 'workouts:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+</div> {# End container #}
+{% endblock %}
+
+{# Note: Getting exercise_id for the link in the summary table requires modifying the view #}
+{# to include the ID in the exercise_summary dictionary, e.g., fetch distinct exercises first #}
