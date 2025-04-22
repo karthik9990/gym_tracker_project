@@ -11,6 +11,137 @@
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <style>
+        /* Define light mode variables (default) */
+        :root {
+            --body-bg: #ffffff; /* White background */
+            --body-color: #212529; /* Default dark text */
+            --card-bg: #ffffff;
+            --card-border-color: rgba(0, 0, 0, 0.175);
+            --link-color: #0d6efd; /* Default Bootstrap blue */
+            --link-hover-color: #0a58ca;
+            --navbar-bg: #212529; /* Original dark navbar */
+            --navbar-color: rgba(255, 255, 255, 0.55);
+            --navbar-active-color: #ffffff;
+            --navbar-hover-color: rgba(255, 255, 255, 0.75);
+            --table-striped-bg: rgba(0, 0, 0, 0.05);
+            --bs-body-bg-rgb: 255, 255, 255; /* Needed for some Bootstrap components */
+            --bs-body-color-rgb: 33, 37, 41;
+            color-scheme: light; /* Hint for browser UI like scrollbars */
+        }
+
+        /* Define dark mode overrides */
+        body.dark-mode {
+            --body-bg: #212529; /* Dark background */
+            --body-color: #dee2e6; /* Light text */
+            --card-bg: #343a40; /* Darker card background */
+            --card-border-color: rgba(255, 255, 255, 0.15);
+            --link-color: #6ea8fe; /* Lighter blue */
+            --link-hover-color: #9ec5fe;
+            --navbar-bg: #1a1d20; /* Even darker navbar */
+            --navbar-color: rgba(255, 255, 255, 0.6);
+            --navbar-active-color: #ffffff;
+            --navbar-hover-color: rgba(255, 255, 255, 0.85);
+            --table-striped-bg: rgba(255, 255, 255, 0.08); /* Lighter stripe on dark */
+            --bs-body-bg-rgb: 33, 37, 41;
+            --bs-body-color-rgb: 222, 226, 230;
+            color-scheme: dark;
+        }
+
+        /* Apply the variables */
+        body {
+            background-color: var(--body-bg);
+            color: var(--body-color);
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Smooth transition */
+        }
+        /* Explicitly set text color for common elements in dark mode */
+        body.dark-mode p,
+        body.dark-mode li,
+        body.dark-mode h1,
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode h4,
+        body.dark-mode h5,
+        body.dark-mode h6,
+        body.dark-mode td,
+        body.dark-mode th,
+        body.dark-mode label,
+        body.dark-mode dt, /* Description list terms */
+        body.dark-mode dd, /* Description list descriptions */
+        body.dark-mode span, /* Apply cautiously to spans */
+        body.dark-mode div:not([class*='alert-']):not(.card) /* Apply to divs unless they are alerts/cards */
+         {
+            color: var(--body-color); /* Use the variable defined in body.dark-mode */
+        }
+
+        /* Ensure links within dark mode text also use the link variable */
+        body.dark-mode p a,
+        body.dark-mode li a,
+        body.dark-mode td a,
+        body.dark-mode dd a {
+            color: var(--link-color);
+        }
+        body.dark-mode p a:hover,
+        body.dark-mode li a:hover,
+        body.dark-mode td a:hover,
+        body.dark-mode dd a:hover {
+             color: var(--link-hover-color);
+        }
+        /* --- END ADDED RULES --- */
+        a { color: var(--link-color); }
+        a:hover { color: var(--link-hover-color); }
+
+        .navbar { background-color: var(--navbar-bg) !important; } /* Override default Bootstrap bg */
+        .navbar-dark .navbar-nav .nav-link { color: var(--navbar-color); }
+        .navbar-dark .navbar-nav .nav-link:hover,
+        .navbar-dark .navbar-nav .nav-link:focus { color: var(--navbar-hover-color); }
+        .navbar-dark .navbar-nav .nav-link.active { color: var(--navbar-active-color); }
+        .navbar-dark .navbar-brand { color: var(--navbar-active-color); } /* Ensure brand matches */
+        .navbar-dark .navbar-brand:hover { color: var(--navbar-active-color); }
+
+        .card {
+            background-color: var(--card-bg);
+            border-color: var(--card-border-color);
+        }
+
+        .table { /* Basic table theming */
+             color: var(--body-color);
+             border-color: var(--card-border-color); /* Use card border for consistency */
+        }
+        .table-striped > tbody > tr:nth-of-type(odd) > * {
+             background-color: var(--table-striped-bg);
+             color: var(--body-color);
+        }
+         .table-hover > tbody > tr:hover > * {
+             /* You might need to define --table-hover-bg/color variables */
+             color: var(--body-color);
+         }
+
+        /* Theme input groups (like password toggle) */
+        body.dark-mode .input-group-text {
+             background-color: #495057;
+             border-color: #6c757d;
+             color: var(--body-color);
+        }
+        /* Theme dropdowns */
+         body.dark-mode .dropdown-menu {
+            background-color: var(--card-bg); /* Use card bg */
+            border-color: var(--card-border-color);
+            --bs-dropdown-link-color: var(--body-color);
+            --bs-dropdown-link-hover-color: var(--body-color); /* Keep text color */
+            --bs-dropdown-link-hover-bg: rgba(255, 255, 255, 0.15); /* Subtle hover bg */
+            --bs-dropdown-link-active-color: #fff;
+            --bs-dropdown-link-active-bg: var(--link-color);
+            --bs-dropdown-divider-bg: var(--card-border-color);
+         }
+         body.dark-mode .dropdown-item { color: var(--body-color); } /* Ensure item text color */
+         body.dark_mode .dropdown-item:hover { background-color: rgba(255, 255, 255, 0.1); } /* Adjust hover */
+
+
+        /* Add more specific overrides as needed for other components (buttons, alerts, etc.) */
+        /* Bootstrap 5.3+ uses data-bs-theme="dark" which is another way to handle this */
+
+    </style>
     {% block extra_head %}{% endblock %} {# Placeholder for extra CSS/JS #}
 </head>
 <body>
@@ -21,6 +152,7 @@
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0"> {# Use ms-auto for right alignment #}
                 {% if user.is_authenticated %}
@@ -32,21 +164,7 @@
                     <a class="nav-link {% if request.resolver_match.view_name == 'workouts:log_workout_date' or request.resolver_match.view_name == 'workouts:log_workout_today' %}active{% endif %}"
                        href="{% url 'workouts:log_workout_today' %}">Log Workout</a>
                 </li>
-                <!--<li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.view_name == 'workouts:profile' %}active{% endif %}"
-                       href="{% url 'workouts:profile' %}">Profile</a>
-                </li>
-                <li class="nav-item d-flex align-items-center ms-lg-3"> {# Added margin for spacing #}
-                    <span class="navbar-text me-3">
-                        Welcome, {{ user.username }}!
-                    </span>
-                    <form method="post" action="{% url 'logout' %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-link nav-link p-0" style="vertical-align: baseline;">
-                            Logout
-                        </button>
-                    </form>
-                </li>-->
+
                 <li class="nav-item dropdown">
                     {# This link is the dropdown trigger - uses username #}
                     <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button"
@@ -90,6 +208,11 @@
                 </li>
                 {% endif %}
             </ul>
+            <li class="nav-item d-flex align-items-center me-3"> {# Vertical alignment and margin #}
+                <button class="btn btn-outline-secondary btn-sm" id="darkModeToggle" title="Toggle dark mode">
+                    <i class="bi bi-moon-stars-fill"></i> {# Default: Moon icon for switching TO dark #}
+                </button>
+            </li>
         </div>
     </div>
 </nav>
@@ -122,6 +245,61 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
-{% block extra_scripts %}{% endblock %} {# Placeholder for extra page-specific JS #}
+{% block extra_scripts %}
+{# --- Dark Mode Toggle Script --- #}
+<script>
+    (function() { // Use IIFE to avoid polluting global scope
+        const themeToggleBtn = document.getElementById('darkModeToggle');
+        const body = document.body;
+        const icon = themeToggleBtn.querySelector('i'); // Get the icon element
+        const currentTheme = localStorage.getItem('theme'); // Check localStorage
+
+        const setDark = () => {
+            //body.classList.add('dark-mode');
+            document.documentElement.setAttribute('data-bs-theme', 'dark'); //(apply to <html>)
+            localStorage.setItem('theme', 'dark');
+            icon.classList.remove('bi-moon-stars-fill');
+            icon.classList.add('bi-sun-fill');
+            localStorage.setItem('theme', 'dark'); // Save preference
+            themeToggleBtn.setAttribute('title', 'Switch to light mode');
+        };
+
+        const setLight = () => {
+            //body.classList.remove('dark-mode');
+            document.documentElement.setAttribute('data-bs-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            icon.classList.remove('bi-sun-fill');
+            icon.classList.add('bi-moon-stars-fill');
+            localStorage.setItem('theme', 'light'); // Save preference
+            themeToggleBtn.setAttribute('title', 'Switch to dark mode');
+        };
+
+        // Adjust initial theme application:
+const htmlElement = document.documentElement;
+if (currentTheme === 'dark') {
+   htmlElement.setAttribute('data-bs-theme', 'dark');
+   // Adjust icon based on initial theme
+   icon.classList.remove('bi-moon-stars-fill');
+   icon.classList.add('bi-sun-fill');
+   themeToggleBtn.setAttribute('title', 'Switch to light mode');
+} else {
+   htmlElement.setAttribute('data-bs-theme', 'light');
+   icon.classList.remove('bi-sun-fill');
+   icon.classList.add('bi-moon-stars-fill');
+   themeToggleBtn.setAttribute('title', 'Switch to dark mode');
+}
+ // Adjust click listener to check/set attribute:
+ themeToggleBtn.addEventListener('click', () => {
+     if (htmlElement.getAttribute('data-bs-theme') === 'dark') {
+         setLight(); // Call your existing light function (which now sets attribute)
+     } else {
+         setDark(); // Call your existing dark function (which now sets attribute)
+     }
+ });
+
+    })(); // Immediately invoke the function expression
+</script>
+{# --- End Dark Mode Toggle Script --- #}
+{% endblock %} {# Placeholder for extra page-specific JS #}
 </body>
 </html>
