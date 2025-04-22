@@ -6,31 +6,53 @@
 <div class="container mt-4">
     {# Form to select/change the date being logged #}
     <form method="POST" action="{% url 'workouts:log_workout_date' date_str=view_date_str %}" class="mb-3">
-         {% csrf_token %}
-         <input type="hidden" name="action" value="change_date">
-         <div class="row g-2 align-items-center">
-             <div class="col-auto">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="change_date">
+        <div class="row g-2 align-items-center">
+            <div class="col-auto">
                 <label for="selected_date" class="col-form-label"><strong>Logging Workout for Date:</strong></label>
-             </div>
-             <div class="col-auto">
+            </div>
+            <div class="col-auto">
                 {# Use HTML5 date input with max attribute set from view context #}
                 <input type="date" id="selected_date" name="selected_date"
                        class="form-control" value="{{ view_date_str }}"
                        max="{{ today_date_str }}" {# Use variable passed from view #}
                        required>
-             </div>
-             <div class="col-auto">
+            </div>
+            <div class="col-auto">
                 <button type="submit" class="btn btn-secondary btn-sm">Go to Date</button>
-             </div>
-         </div>
+            </div>
+        </div>
     </form>
 
     <hr>
+    {# --- Rest Timer Section --- #}
+    <div class="mb-4 p-3 border rounded bg-light text-center shadow-sm">
+        <h5 class="mb-3">Rest Timer</h5>
+        <div id="restTimerDisplay" class="fs-1 fw-bold mb-3" style="font-family: 'Courier New', Courier, monospace;">
+            00:00 {# Initial display #}
+        </div>
+        {# --- Button Group --- #}
+        <div class="btn-group" role="group" aria-label="Timer Controls">
+            <button class="btn btn-success btn-lg" id="timerStartBtn">
+                <i class="bi bi-play-fill me-1"></i> Start
+            </button>
+            <button class="btn btn-danger btn-lg" id="timerStopBtn" disabled> {# Initially disabled #}
+                <i class="bi bi-stop-fill me-1"></i> Stop
+            </button>
+            <button class="btn btn-secondary btn-lg" id="timerResetBtn" disabled> {# Initially disabled #}
+                <i class="bi bi-arrow-clockwise me-1"></i> Reset
+            </button>
+        </div>
+        {# --- End Button Group --- #}
+    </div>
+    {# --- End Rest Timer Section --- #}
 
     <h2>Log Exercises for {{ view_date|date:"F d, Y" }}</h2>
 
     <!-- Form to add a single exercise log -->
-    <form method="POST" action="{% url 'workouts:log_workout_date' date_str=view_date_str %}" id="add-exercise-form" class="mb-4 p-3 border rounded">
+    <form method="POST" action="{% url 'workouts:log_workout_date' date_str=view_date_str %}" id="add-exercise-form"
+          class="mb-4 p-3 border rounded">
         {% csrf_token %}
         <input type="hidden" name="action" value="add_item">
         <input type="hidden" name="date" value="{{ view_date_str }}"> {# Context date #}
@@ -62,47 +84,140 @@
                 <label for="weight" class="form-label">Weight (kg)</label>
                 <input type="number" step="0.01" name="weight" id="weight" class="form-control" min="0">
             </div>
-             {# Add button #}
+            {# Add button #}
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100">Add to {{ view_date|date:"M d" }} Workout</button>
             </div>
         </div>
         <small class="text-muted">* Required field</small>
     </form>
-
     <hr>
 
     <!-- Display current "Cart" items for the specific date -->
     <h3>Workout Items for {{ view_date|date:"F d, Y" }} (Not Saved Yet)</h3>
     {% if cart_items %}
-        <ul class="list-group mb-3">
-            {% for item in cart_items %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
+    <ul class="list-group mb-3">
+        {% for item in cart_items %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>
                         <strong>{{ item.exercise_name }}</strong>
                         {% if item.sets and item.reps %} - {{ item.sets }}x{{ item.reps }}{% endif %}
                         {% if item.weight %} @ {{ item.weight }}kg{% endif %}
                         {# Add remove button later? #}
                     </span>
-                </li>
-            {% endfor %}
-        </ul>
-         <!-- Form/Button to Save the workout for the specific date -->
-        <form method="POST" action="{% url 'workouts:save_workout' %}">
-             {% csrf_token %}
-             <input type="hidden" name="date_to_save" value="{{ view_date_str }}"> {# Ensure this is passed #}
-             {# Optional: Add session notes field #}
-             {#
-             <div class="mb-3">
-                <label for="session_notes" class="form-label">Session Notes (Optional)</label>
-                <textarea class="form-control" id="session_notes" name="session_notes" rows="2"></textarea>
-             </div>
-             #}
-             <button type="submit" class="btn btn-success">Save {{ view_date|date:"M d" }} Workout Session</button>
-        </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <!-- Form/Button to Save the workout for the specific date -->
+    <form method="POST" action="{% url 'workouts:save_workout' %}">
+        {% csrf_token %}
+        <input type="hidden" name="date_to_save" value="{{ view_date_str }}"> {# Ensure this is passed #}
+        {# Optional: Add session notes field #}
+        {#
+        <div class="mb-3">
+            <label for="session_notes" class="form-label">Session Notes (Optional)</label>
+            <textarea class="form-control" id="session_notes" name="session_notes" rows="2"></textarea>
+        </div>
+        #}
+        <button type="submit" class="btn btn-success">Save {{ view_date|date:"M d" }} Workout Session</button>
+    </form>
     {% else %}
-        <p>No exercises added to this workout yet.</p>
+    <p>No exercises added to this workout yet.</p>
     {% endif %}
 
 </div>
+{% block extra_scripts %}
+    {# Keep any other existing scripts #}
+
+    {# --- Updated Rest Timer Script --- #}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const timerDisplay = document.getElementById('restTimerDisplay');
+        const startButton = document.getElementById('timerStartBtn');
+        const stopButton = document.getElementById('timerStopBtn');
+        const resetButton = document.getElementById('timerResetBtn');
+
+        let timerInterval = null; // Stores the interval ID
+        let elapsedSeconds = 0;   // Stores the elapsed time
+        let isRunning = false;    // Tracks if the timer is active
+
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const paddedMinutes = String(minutes).padStart(2, '0');
+            const paddedSeconds = String(seconds).padStart(2, '0');
+            return `${paddedMinutes}:${paddedSeconds}`;
+        }
+
+        function updateDisplay() {
+            timerDisplay.textContent = formatTime(elapsedSeconds);
+        }
+
+        function updateButtonStates() {
+            startButton.disabled = isRunning;
+            stopButton.disabled = !isRunning;
+            // Reset button is enabled only when stopped AND time is not zero
+            resetButton.disabled = isRunning || elapsedSeconds === 0;
+        }
+
+        function startTimer() { // Renamed conceptually to startOrResumeTimer
+            if (isRunning) return; // Prevent multiple intervals
+
+            isRunning = true;
+            // -- MODIFIED LOGIC --
+            // DO NOT reset elapsedSeconds here automatically.
+            // It will continue from where it stopped,
+            // or from 0 if it was previously reset.
+            // --------------------
+
+            if (timerInterval) clearInterval(timerInterval); // Clear just in case
+
+            timerInterval = setInterval(() => {
+                elapsedSeconds++;
+                updateDisplay();
+            }, 1000);
+
+            updateButtonStates(); // Update button enabled/disabled state
+        }
+
+        function stopTimer() {
+            if (!isRunning) return; // Only stop if running
+
+            isRunning = false;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            updateButtonStates(); // Update button enabled/disabled state
+            // elapsedSeconds remains at the stopped value
+        }
+
+        function resetTimer() {
+             // Stop the timer if it's running
+             if (isRunning) {
+                 if (timerInterval) {
+                     clearInterval(timerInterval);
+                     timerInterval = null;
+                 }
+                 isRunning = false; // Explicitly set running to false
+             }
+             // Reset time and update display/buttons
+             elapsedSeconds = 0;
+             updateDisplay();
+             updateButtonStates();
+         }
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', startTimer);
+        stopButton.addEventListener('click', stopTimer);
+        resetButton.addEventListener('click', resetTimer);
+
+        // Initialize display and button states
+        updateDisplay();
+        updateButtonStates();
+
+    }); // End DOMContentLoaded
+    </script>
+    {# --- End Rest Timer Script --- #}
+{% endblock %}
 {% endblock %}

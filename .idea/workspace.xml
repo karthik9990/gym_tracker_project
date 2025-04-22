@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added/edited Monthly Workout Report with detail summary of workouts in that monthly_report.html">
-      <change afterPath="$PROJECT_DIR$/workouts/templates/workouts/health_tools.html" afterDir="false" />
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added health_tools.html&#10;where we can check BMI, lbs to kgs, and height to weight scale">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,7 +210,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745357944476</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Added health_tools.html&#10;where we can check BMI, lbs to kgs, and height to weight scale">
+      <option name="closed" value="true" />
+      <created>1745362520998</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1745362520998</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -231,6 +238,7 @@
     <MESSAGE value="Added Dark mode option to switch from classic to dark mode" />
     <MESSAGE value="Add workout detail monthly report which gives whole workout summary" />
     <MESSAGE value="Added/edited Monthly Workout Report with detail summary of workouts in that monthly_report.html" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added/edited Monthly Workout Report with detail summary of workouts in that monthly_report.html" />
+    <MESSAGE value="Added health_tools.html&#10;where we can check BMI, lbs to kgs, and height to weight scale" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added health_tools.html&#10;where we can check BMI, lbs to kgs, and height to weight scale" />
   </component>
 </project>
