@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+
+
+# gym_tracker_project/settings.py
+
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'workouts',
+    'pwa',
 ]
 
 MIDDLEWARE = [
@@ -110,7 +118,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'), # Path to the project-wide static directory
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -120,3 +134,63 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # gym_tracker_project/settings.py (at the bottom)
 LOGIN_REDIRECT_URL = '/workouts/'  # Redirect to the log page after login
 LOGOUT_REDIRECT_URL = '/'  # Redirect to home page (or login page) after logout
+
+# --- PWA Configuration ---
+
+# Define the path where your static files are collected in production
+# Adjust 'static/' if your STATIC_ROOT or STATICFILES_DIRS are different
+# This example assumes icons are in 'static/images/icons/' relative to BASE_DIR
+# Or adjust based on your STATICFILES_DIRS setup.
+# If using STATIC_ROOT, ensure icons are placed so collectstatic copies them correctly.
+PWA_APP_BASE_DIR = BASE_DIR # Or wherever your manage.py is
+
+PWA_APP_NAME = 'Gym Tracker' # Your app's public name
+PWA_APP_DESCRIPTION = "Your personal workout logging application."
+PWA_APP_THEME_COLOR = '#0d6efd' # Example: Bootstrap primary blue
+PWA_APP_BACKGROUND_COLOR = '#ffffff' # White background
+PWA_APP_DISPLAY = 'standalone' # How the app should look (standalone, fullscreen, minimal-ui)
+PWA_APP_SCOPE = '/' # The scope of URLs the PWA controls (usually root)
+PWA_APP_ORIENTATION = 'any' # portrait, landscape, any
+PWA_APP_START_URL = '/' # The URL loaded when the PWA is launched from the icon
+PWA_APP_FETCH_URL = PWA_APP_START_URL # Often same as START_URL
+# Optional: Versioning - useful for cache busting on updates
+PWA_APP_VERSION = '1.0.0' # Increment this when you make significant changes
+
+# Icons: Provide paths relative to your STATICFILES_DIRS or where collectstatic finds them
+# You MUST create these icon files and place them in your static files directory.
+# Common sizes: 192x192 (required), 512x512 (recommended for splash screens)
+# Ensure these paths are correct relative to how your static files are served.
+# Example assumes you have a 'static/images/icons/' folder in your project root
+# or within an app that's configured in STATICFILES_DIRS.
+PWA_APP_ICONS = [
+    {
+        'src': '/static/images/icons/icon-192x192.png', # Adjust path as needed!
+        'sizes': '192x192'
+    },
+    {
+        'src': '/static/images/icons/icon-512x512.png', # Adjust path as needed!
+        'sizes': '512x512'
+    }
+]
+PWA_APP_ICONS_APPLE = [ # Icons for iOS 'Add to Home Screen'
+    {
+        'src': '/static/images/icons/icon-apple-180x180.png', # Adjust path as needed!
+        'sizes': '180x180'
+    }
+]
+
+# Splash Screen (Optional but recommended for better UX)
+# PWA_APP_SPLASH_SCREEN = [
+#    {
+#        'src': '/static/images/splash/splash-screen.png', # Adjust path!
+#        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
+#    }
+# ]
+
+# Service Worker Path
+# Tells django-pwa where to find the generated Service Worker file.
+# This path is usually relative to the STATIC_ROOT in production after collectstatic.
+# If using runserver, it finds it relative to BASE_DIR/static usually.
+PWA_SERVICE_WORKER_PATH = os.path.join(PWA_APP_BASE_DIR, 'static', 'serviceworker.js')
+
+# --- End PWA Configuration ---

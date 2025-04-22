@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Successfully add timezone to each profile and also they can change from UI menu">
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="App is now complete with core functionality and we will add updates to this app weekly">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gym_tracker_project/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gym_tracker_project/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/base.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,6 +63,7 @@
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\workouts\templatetags" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ktadakapalli\gym_tracker_project\static\images\icons" />
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\workouts\templates\workouts" />
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\templates\registration" />
     </key>
@@ -144,7 +148,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745288528090</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="App is now complete with core functionality and we will add updates to this app weekly">
+      <option name="closed" value="true" />
+      <created>1745293248355</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1745293248355</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -156,6 +168,7 @@
     <MESSAGE value="Signup page is done successful" />
     <MESSAGE value="Delete button added Successfully to workout_detail.html" />
     <MESSAGE value="Successfully add timezone to each profile and also they can change from UI menu" />
-    <option name="LAST_COMMIT_MESSAGE" value="Successfully add timezone to each profile and also they can change from UI menu" />
+    <MESSAGE value="App is now complete with core functionality and we will add updates to this app weekly" />
+    <option name="LAST_COMMIT_MESSAGE" value="App is now complete with core functionality and we will add updates to this app weekly" />
   </component>
 </project>
