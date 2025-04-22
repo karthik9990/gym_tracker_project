@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="calendar is now working&#10;next steps are signup, make login page design">
-      <change afterPath="$PROJECT_DIR$/templates/registration/signup.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/workouts/forms.py" afterDir="false" />
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Signup page is done successful">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gym_tracker_project/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/registration/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/workout_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/workout_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -127,7 +123,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745272629947</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Signup page is done successful">
+      <option name="closed" value="true" />
+      <created>1745277846797</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1745277846798</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -136,6 +140,7 @@
     <MESSAGE value="Dashboard is now fixed with multiple users and their individual dashboards" />
     <MESSAGE value="Now the date cannot be future , only past and todays date can be entered." />
     <MESSAGE value="calendar is now working&#10;next steps are signup, make login page design" />
-    <option name="LAST_COMMIT_MESSAGE" value="calendar is now working&#10;next steps are signup, make login page design" />
+    <MESSAGE value="Signup page is done successful" />
+    <option name="LAST_COMMIT_MESSAGE" value="Signup page is done successful" />
   </component>
 </project>

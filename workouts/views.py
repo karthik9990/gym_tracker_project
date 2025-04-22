@@ -1,5 +1,6 @@
 # workouts/views.py
 from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponseNotAllowed
 from django.contrib.auth import login
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -10,6 +11,7 @@ from .models import Exercise, WorkoutSession, WorkoutLog
 import datetime
 import calendar
 import traceback  # For detailed error logging
+
 from .forms import CustomUserCreationForm
 
 
@@ -340,3 +342,29 @@ def signup_view(request):
     context = {'form': form}
     # Use the same template name for consistency
     return render(request, 'registration/signup.html', context)
+
+
+@login_required
+def delete_workout_log_view(request, log_id):
+    """Deletes a specific WorkoutLog entry."""
+    # Ensure this view only accepts POST requests for safety
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])  # Return 405 Method Not Allowed
+
+    # Get the log entry, ensuring it exists and belongs to the current user's session
+    log_entry = get_object_or_404(WorkoutLog, pk=log_id, session__user=request.user)
+
+    # Store the session ID *before* deleting the log, so we can redirect back
+    session_id = log_entry.session.id
+
+    try:
+        # Delete the log entry
+        log_entry.delete()
+        messages.success(request, f"Workout entry '{log_entry.exercise.name}' deleted successfully.")
+    except Exception as e:
+        # Handle potential errors during deletion (less common)
+        messages.error(request, f"Could not delete entry: {e}")
+        print(f"Error deleting WorkoutLog ID {log_id}: {e}")
+
+    # Redirect back to the workout detail page for the session it belonged to
+    return redirect('workouts:workout_detail', session_id=session_id)

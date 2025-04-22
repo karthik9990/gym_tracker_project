@@ -22,41 +22,55 @@
 
     <h4 class="mt-4">Exercises Logged:</h4>
     {% if logs %}
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">Exercise</th>
-                    <th scope="col">Sets</th>
-                    <th scope="col">Reps</th>
-                    <th scope="col">Weight (kg)</th>
-                    <!-- Add Duration header if using -->
-                    <th scope="col">Notes</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for log in logs %}
-                <tr>
-                    <td><strong>{{ log.exercise.name }}</strong></td>
-                    <td>{{ log.sets|default:"N/A" }}</td>
-                    <td>{{ log.reps|default:"N/A" }}</td>
-                    <td>{{ log.weight|default:"N/A" }}</td>
-                    <!-- Add Duration data cell if using: <td>{{ log.duration|default:"N/A" }}</td> -->
-                    <td>{{ log.notes|default:""|linebreaksbr }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th scope="col">Exercise</th>
+            <th scope="col">Sets</th>
+            <th scope="col">Reps</th>
+            <th scope="col">Weight (kg)</th>
+            <!-- Add Duration header if using -->
+            <th scope="col">Notes</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for log in logs %}
+        <tr>
+            <td><strong>{{ log.exercise.name }}</strong></td>
+            <td>{{ log.sets|default:"N/A" }}</td>
+            <td>{{ log.reps|default:"N/A" }}</td>
+            <td>{{ log.weight|default:"N/A" }}</td>
+            <!-- Add Duration data cell if using: <td>{{ log.duration|default:"N/A" }}</td> -->
+            <td>{{ log.notes|default:""|linebreaksbr }}</td>
+            <td>
+                {# Mini-form for each delete button #}
+                <form action="{% url 'workouts:delete_workout_log' log_id=log.id %}"
+                      method="POST"
+                      class="d-inline" {# Display form inline #}
+                      onsubmit="return confirm('Are you sure you want to delete this entry?');"> {# JS Confirmation #}
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm" title="Delete this entry">
+                        <i class="bi bi-trash"></i> {# Trash Icon #}
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
     {% else %}
-        <p>No specific exercises were logged for this session.</p>
+    <p>No specific exercises were logged for this session.</p>
     {% endif %}
 
     <div class="mt-4">
         <a href="{% url 'workouts:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
         {# Links to the log page for the date of the session being viewed #}
-            <a href="{% url 'workouts:log_workout_date' date_str=session.date|date:'Y-m-d' %}" class="btn btn-primary ms-2"> {# ms-2 adds margin-start #}
-                <i class="bi bi-pencil-square me-1"></i> {# Optional: Add an icon #}
-                Log/Edit This Date
-            </a>
+        <a href="{% url 'workouts:log_workout_date' date_str=session.date|date:'Y-m-d' %}" class="btn btn-primary ms-2">
+            {# ms-2 adds margin-start #}
+            <i class="bi bi-pencil-square me-1"></i> {# Optional: Add an icon #}
+            Log/Edit This Date
+        </a>
         <!-- Optional: Add Edit/Delete buttons here later -->
     </div>
 </div>
