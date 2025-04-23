@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UsernameField
 from django.contrib.auth.models import User
 from django.forms.widgets import TextInput, EmailInput, PasswordInput
-from .models import UserProfile
+from .models import UserProfile, Exercise
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -67,3 +67,20 @@ class UserProfileForm(forms.ModelForm):
         # widgets = { # Optional: Use a better widget if desired
         #     'timezone': forms.Select(attrs={'class': 'form-select'})
         # }
+
+
+# --- Form for Adding Custom Exercises ---
+class CustomExerciseForm(forms.ModelForm):
+    class Meta:
+        model = Exercise
+        # Only expose fields the user should fill
+        fields = ['name', 'description']
+        widgets = {  # Add placeholders and Bootstrap classes
+            'name': forms.TextInput(attrs={'placeholder': 'Enter exercise name', 'class': 'form-control'}),
+            'description': forms.Textarea(
+                attrs={'placeholder': 'Optional: Describe the exercise or add notes', 'class': 'form-control',
+                       'rows': 3}),
+        }
+        labels = {  # Customize labels if needed
+            'name': 'Custom Exercise Name',
+        }

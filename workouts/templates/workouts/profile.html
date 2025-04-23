@@ -20,7 +20,7 @@
                             class="form-select {% if form.timezone.errors %}is-invalid{% endif %}">
                         {% for value, text in form.timezone.field.choices %}
                         {# Ensure correct spacing around == #}
-                        <option value="{{ value }}" {% if form.timezone.value == value %}selected{% endif %}>{{ text }}
+                        <option value ="{{ value }}" {% if form.timezone.value == value %}selected{% endif %}>{{ text }}
                         </option>
                         {% endfor %}
                     </select>
@@ -39,6 +39,9 @@
             <p><strong>Current Timezone:</strong> {{ profile.timezone }}</p>
             {# Display current time based on profile setting (requires middleware active) #}
             {# <p><strong>Current time for you:</strong> {% now "H:i:s (P)" %}</p> #}
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'workouts:add_custom_exercise' %}" class="btn btn-info">Add Custom Exercise</a>
         </div>
     </div>
 </div>

@@ -1,0 +1,42 @@
+{% extends 'workouts/base.html' %}
+
+{% block title %}Add Custom Exercise{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add Your Own Exercise</h2>
+    <p class="text-muted">Add exercises that aren't in the main list. These will only be visible to you.</p>
+    <hr>
+
+    <div class="row">
+        <div class="col-md-8 col-lg-6">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {# Render form using paragraphs or manually #}
+                {{ form.as_p }}
+
+                <button type="submit" class="btn btn-primary">Add Exercise</button>
+                {# Optional: Link back to dashboard or log page #}
+                <a href="{% url 'workouts:dashboard' %}" class="btn btn-secondary ms-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+
+    {# Optional: List user's existing custom exercises #}
+    {# You would need to pass these from the view context #}
+
+    <h4 class="mt-5">Your Custom Exercises</h4>
+    {% if user_custom_exercises %}
+        <ul class="list-group mt-3">
+            {% for ex in user_custom_exercises %}
+            <li class="list-group-item">{{ ex.name }}{% if ex.description %} - <small>{{ ex.description|truncatewords:10 }}</small>{% endif %}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You haven't added any custom exercises yet.</p>
+    {% endif %}
+
+
+</div>
+{% endblock %}

@@ -11,6 +11,20 @@ from django.dispatch import receiver
 class Exercise(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
+    # --- ADD THIS FIELD ---
+    # Links to the user who created this exercise.
+    # null=True means admin/global exercises don't need a user.
+    # blank=True allows the field to be empty in forms (like the admin).
+    # on_delete=models.CASCADE means if a user is deleted, their custom exercises are also deleted.
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='custom_exercises')
+
+    # --------------------
+    class Meta:
+        # Ensure exercise names are unique *per user* (or globally if preferred)
+        # If user is NULL (global), name must be unique among other global ones.
+        # If user is set, name must be unique *for that specific user*.
+        unique_together = ('user', 'name')  # Makes name unique for a specific user (or globally if user is None)
+        ordering = ['name']  # Keep exercises ordered alphabetically
 
     def __str__(self):
         return self.name

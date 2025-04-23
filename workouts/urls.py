@@ -19,4 +19,5 @@ urlpatterns = [
     path('report/monthly/<int:year>/<int:month>/', views.monthly_report_view, name='monthly_report_specific'),
     path('tools/health/', views.health_tools_view, name='health_tools'),
     path('profile/', views.profile_view, name='profile'),
+    path('exercises/add/', views.add_custom_exercise_view, name='add_custom_exercise'),
 ]

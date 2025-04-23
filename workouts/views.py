@@ -4,6 +4,7 @@
 import calendar
 import datetime
 import json
+# Standard library imports
 import pytz
 import traceback
 from collections import defaultdict
@@ -11,21 +12,24 @@ from decimal import Decimal
 
 # Django imports
 from django.contrib import messages
-from django.contrib.auth import login # Note: login is imported but not used in current views
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm # For the simple signup view
-from django.db.models import Count, Max
+from django.contrib.auth.forms import UserCreationForm
+from django.db import IntegrityError
+from django.db.models import Count, Max, Q
 from django.db.models.functions import TruncDate
 from django.http import HttpResponseNotAllowed, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
+
 
 # Local app imports (Ensure these paths are correct)
 # If using the simple signup, CustomUserCreationForm might not be needed here
 # from .forms import CustomUserCreationForm
 from .forms import UserProfileForm
+from .forms import CustomExerciseForm
 from .models import Exercise, WorkoutSession, WorkoutLog, UserProfile
 
 
@@ -51,7 +55,7 @@ def dashboard_view(request):
         # Validate year range (optional but good practice)
         current_year = timezone.now().year
         if not (current_year - 10 <= year <= current_year + 1):
-             raise ValueError("Year out of reasonable range")
+            raise ValueError("Year out of reasonable range")
         current_month_date = datetime.date(year, month, 1)
     except ValueError:
         # Handle invalid parameters or construction errors
@@ -74,19 +78,19 @@ def dashboard_view(request):
     sessions_map = {session.date: session for session in user_sessions}
 
     # Prepare calendar data
-    cal = calendar.Calendar(firstweekday=6) # Sunday start
+    cal = calendar.Calendar(firstweekday=6)  # Sunday start
     month_calendar_weeks = cal.monthdatescalendar(year, month)
 
     # Calculate previous/next month for navigation links
     first_day_current_month = datetime.date(year, month, 1)
     last_day_prev_month = first_day_current_month - datetime.timedelta(days=1)
-    prev_month_date = last_day_prev_month # Use the actual date for linking year/month
+    prev_month_date = last_day_prev_month  # Use the actual date for linking year/month
 
     if month == 12:
         first_day_next_month = datetime.date(year + 1, 1, 1)
     else:
         first_day_next_month = datetime.date(year, month + 1, 1)
-    next_month_date = first_day_next_month # Use the actual date for linking year/month
+    next_month_date = first_day_next_month  # Use the actual date for linking year/month
 
     context = {
         'calendar_weeks': month_calendar_weeks,
@@ -94,7 +98,7 @@ def dashboard_view(request):
         'current_month_date': current_month_date,
         'prev_month_date': prev_month_date,
         'next_month_date': next_month_date,
-        'todays_date_str': timezone.now().strftime('%Y-%m-%d'), # For max date attribute
+        'todays_date_str': timezone.now().strftime('%Y-%m-%d'),  # For max date attribute
     }
     return render(request, 'workouts/dashboard.html', context)
 
@@ -139,8 +143,8 @@ def log_workout_view(request, date_str):
         # --- Action: Add Exercise Item to Cart ---
         if action == 'add_item':
             form_valid = False
-            error_message = "An unknown error occurred adding the item." # Default error
-            item_data = {} # Initialize for scope in non-AJAX message
+            error_message = "An unknown error occurred adding the item."  # Default error
+            item_data = {}  # Initialize for scope in non-AJAX message
 
             try:
                 # Re-validate date just in case
@@ -176,17 +180,17 @@ def log_workout_view(request, date_str):
                 cart[date_str].append(item_data)
                 request.session['workout_cart'] = cart
                 request.session.modified = True
-                form_valid = True # Mark as successful
+                form_valid = True  # Mark as successful
 
             except (ValueError, Exercise.DoesNotExist, KeyError) as e:
-                error_message = f"{e}" # Use the specific exception message
-                print(f"Error adding item to cart for date {date_str}: {error_message}") # Log error
+                error_message = f"{e}"  # Use the specific exception message
+                print(f"Error adding item to cart for date {date_str}: {error_message}")  # Log error
                 form_valid = False
             except Exception as e:
                 # Catch any other unexpected errors during item add process
                 error_message = "An unexpected server error occurred while adding the item."
                 print(f"Unexpected error adding item for date {date_str}: {e}")
-                traceback.print_exc() # Print full traceback
+                traceback.print_exc()  # Print full traceback
                 form_valid = False
 
             # --- Respond: AJAX or Full Reload ---
@@ -204,14 +208,14 @@ def log_workout_view(request, date_str):
                         )
                         return JsonResponse({'success': True, 'cart_html': html_fragment})
                     except Exception as e:
-                         # Catch potential template rendering errors for AJAX
-                         print(f"Error rendering partial template for AJAX: {e}")
-                         traceback.print_exc()
-                         return JsonResponse({'success': False, 'error': 'Error updating cart display.'}, status=500)
+                        # Catch potential template rendering errors for AJAX
+                        print(f"Error rendering partial template for AJAX: {e}")
+                        traceback.print_exc()
+                        return JsonResponse({'success': False, 'error': 'Error updating cart display.'}, status=500)
                 else:
                     # Return JSON error for AJAX request
-                    return JsonResponse({'success': False, 'error': error_message}, status=400) # Bad Request
-            else: # Regular (non-AJAX) form submission
+                    return JsonResponse({'success': False, 'error': error_message}, status=400)  # Bad Request
+            else:  # Regular (non-AJAX) form submission
                 if form_valid:
                     messages.success(request, f"{item_data.get('exercise_name', 'Item')} added to workout.")
                 else:
@@ -225,9 +229,9 @@ def log_workout_view(request, date_str):
             if new_date_str:
                 try:
                     new_date = datetime.datetime.strptime(new_date_str, '%Y-%m-%d').date()
-                    if new_date > today: # Use 'today' defined earlier
+                    if new_date > today:  # Use 'today' defined earlier
                         messages.error(request, "You cannot select a future date.")
-                        return redirect('workouts:log_workout_date', date_str=date_str) # Stay on current page
+                        return redirect('workouts:log_workout_date', date_str=date_str)  # Stay on current page
                     # Redirect to the new valid date's log page
                     return redirect('workouts:log_workout_date', date_str=new_date_str)
                 except ValueError:
@@ -247,10 +251,10 @@ def log_workout_view(request, date_str):
 
         context = {
             'available_exercises': available_exercises,
-            'cart_items': cart_items_for_date, # Items for the initial render
+            'cart_items': cart_items_for_date,  # Items for the initial render
             'view_date': view_date,
             'view_date_str': date_str,
-            'today_date_str': today.strftime('%Y-%m-%d'), # For date input max attribute
+            'today_date_str': today.strftime('%Y-%m-%d'),  # For date input max attribute
         }
         return render(request, 'workouts/log_workout.html', context)
 
@@ -269,7 +273,7 @@ def save_workout_view(request):
     # Validate date presence
     if not date_to_save_str:
         messages.error(request, "Date missing from save request.")
-        referer = request.META.get('HTTP_REFERER', reverse('workouts:dashboard')) # Safer fallback
+        referer = request.META.get('HTTP_REFERER', reverse('workouts:dashboard'))  # Safer fallback
         return redirect(referer)
 
     # Validate date format and ensure it's not in the future
@@ -298,9 +302,9 @@ def save_workout_view(request):
         workout_session, created = WorkoutSession.objects.get_or_create(
             user=request.user,
             date=session_date,
-            defaults={'notes': request.POST.get('session_notes', '')} # Save session notes if provided
+            defaults={'notes': request.POST.get('session_notes', '')}  # Save session notes if provided
         )
-        if not created and request.POST.get('session_notes'): # If session existed, update notes if new ones provided
+        if not created and request.POST.get('session_notes'):  # If session existed, update notes if new ones provided
             workout_session.notes = request.POST.get('session_notes', '')
             workout_session.save()
 
@@ -308,9 +312,9 @@ def save_workout_view(request):
         errors_during_log_creation = False
         for item in cart_items_for_date:
             try:
-                if 'exercise_id' not in item or not item['exercise_id']: continue # Skip if no ID
+                if 'exercise_id' not in item or not item['exercise_id']: continue  # Skip if no ID
 
-                exercise = Exercise.objects.get(pk=item['exercise_id']) # Use get not get_or_404 inside loop
+                exercise = Exercise.objects.get(pk=item['exercise_id'])  # Use get not get_or_404 inside loop
 
                 # Prepare data, handling potential type errors during conversion
                 try:
@@ -319,7 +323,7 @@ def save_workout_view(request):
                     weight_val = float(item.get('weight')) if item.get('weight') else None
                 except (ValueError, TypeError):
                     print(f"Warning: Invalid data type for sets/reps/weight in item {item}. Skipping calculation.")
-                    sets_val, reps_val, weight_val = None, None, None # Or handle as needed
+                    sets_val, reps_val, weight_val = None, None, None  # Or handle as needed
 
                 WorkoutLog.objects.create(
                     session=workout_session,
@@ -335,7 +339,7 @@ def save_workout_view(request):
                 messages.warning(request, f"Exercise ID {item.get('exercise_id')} in cart not found, skipped.")
                 errors_during_log_creation = True
                 continue
-            except (KeyError, Exception) as e: # Catch other potential errors per item
+            except (KeyError, Exception) as e:  # Catch other potential errors per item
                 messages.error(request, f"Error saving log for {item.get('exercise_name', 'Unknown')}: {e}")
                 print(f"Error processing log item {item}: {e}")
                 errors_during_log_creation = True
@@ -350,9 +354,11 @@ def save_workout_view(request):
         if log_count > 0 and not errors_during_log_creation:
             messages.success(request, f"Workout for {session_date.strftime('%B %d, %Y')} saved successfully!")
         elif log_count > 0 and errors_during_log_creation:
-             messages.warning(request, f"Workout for {session_date.strftime('%B %d, %Y')} saved, but some items had errors.")
-        else: # log_count == 0
-            messages.error(request, f"Workout for {session_date.strftime('%B %d, %Y')} could not be saved due to errors with all items.")
+            messages.warning(request,
+                             f"Workout for {session_date.strftime('%B %d, %Y')} saved, but some items had errors.")
+        else:  # log_count == 0
+            messages.error(request,
+                           f"Workout for {session_date.strftime('%B %d, %Y')} could not be saved due to errors with all items.")
         return redirect('workouts:dashboard')
 
     except Exception as e:
@@ -369,7 +375,8 @@ def save_workout_view(request):
 def workout_detail_view(request, session_id):
     """Displays the details of a specific saved workout session."""
     workout_session = get_object_or_404(WorkoutSession, pk=session_id, user=request.user)
-    session_logs = workout_session.logs.all().select_related('exercise').order_by('id') # Efficiently get logs and exercise
+    session_logs = workout_session.logs.all().select_related('exercise').order_by(
+        'id')  # Efficiently get logs and exercise
 
     # Calculate number of logs
     log_count = session_logs.count()
@@ -383,7 +390,7 @@ def workout_detail_view(request, session_id):
             heaviest_lift_weight = max_weight_aggregate['max_w']
             # Find one exercise name associated with this max weight
             first_log_with_max = session_logs.filter(weight=heaviest_lift_weight).first()
-            if first_log_with_max: # Check if found (might have weight but no logs match exactly if Decimal issue)
+            if first_log_with_max:  # Check if found (might have weight but no logs match exactly if Decimal issue)
                 heaviest_lift_exercise_name = first_log_with_max.exercise.name
 
     context = {
@@ -403,11 +410,11 @@ def signup_view(request):
         return redirect('workouts:dashboard')
 
     if request.method == 'POST':
-        form = UserCreationForm(request.POST) # Standard form
+        form = UserCreationForm(request.POST)  # Standard form
         if form.is_valid():
             form.save()
             messages.success(request, "Registration successful! Please log in.")
-            return redirect('login') # Redirect to login page
+            return redirect('login')  # Redirect to login page
         else:
             messages.error(request, "Please correct the errors shown below.")
     else:
@@ -426,10 +433,10 @@ def delete_workout_log_view(request, log_id):
         return HttpResponseNotAllowed(['POST'])
 
     log_entry = get_object_or_404(WorkoutLog, pk=log_id, session__user=request.user)
-    session_id = log_entry.session.id # Get session ID before deleting
+    session_id = log_entry.session.id  # Get session ID before deleting
 
     try:
-        entry_name = log_entry.exercise.name # Get name for message
+        entry_name = log_entry.exercise.name  # Get name for message
         log_entry.delete()
         messages.success(request, f"Workout entry '{entry_name}' deleted successfully.")
     except Exception as e:
@@ -457,12 +464,12 @@ def profile_view(request):
                 timezone.activate(pytz.timezone(saved_profile.timezone))
             except pytz.UnknownTimeZoneError:
                 messages.warning(request, "Selected timezone is invalid, using default.")
-                timezone.deactivate() # Revert to default if selected one fails
+                timezone.deactivate()  # Revert to default if selected one fails
 
-            return redirect('workouts:profile') # Redirect back to profile page
+            return redirect('workouts:profile')  # Redirect back to profile page
         else:
             messages.error(request, 'Please correct the errors below.')
-    else: # GET request
+    else:  # GET request
         form = UserProfileForm(instance=profile)
 
     context = {
@@ -482,13 +489,13 @@ def exercise_stats_view(request, exercise_id):
     all_logs = WorkoutLog.objects.filter(
         session__user=request.user,
         exercise=exercise,
-        weight__isnull=False # Need weight for both PR and charts here
+        weight__isnull=False  # Need weight for both PR and charts here
         # Could relax this if charting something else like reps only
     ).select_related('session').order_by('session__date')
 
     # Process data for charts
     daily_max_weight = {}
-    daily_volume = defaultdict(Decimal) # Use defaultdict for easier aggregation
+    daily_volume = defaultdict(Decimal)  # Use defaultdict for easier aggregation
 
     for log in all_logs:
         # Ensure data needed for calculations is present for this log
@@ -497,7 +504,7 @@ def exercise_stats_view(request, exercise_id):
             log_date_str = log_date.strftime('%Y-%m-%d')
 
             # Aggregate Max Weight
-            current_max = daily_max_weight.get(log_date_str, Decimal('-1')) # Use -1 to handle 0 weight
+            current_max = daily_max_weight.get(log_date_str, Decimal('-1'))  # Use -1 to handle 0 weight
             if log.weight > current_max:
                 daily_max_weight[log_date_str] = log.weight
 
@@ -506,7 +513,7 @@ def exercise_stats_view(request, exercise_id):
                 volume = Decimal(log.sets) * Decimal(log.reps) * Decimal(log.weight)
                 daily_volume[log_date_str] += volume
             except (TypeError, ValueError):
-                pass # Ignore volume calculation for this log if data invalid
+                pass  # Ignore volume calculation for this log if data invalid
 
     # Prepare data for Chart.js
     # Use dates from max weight dict keys, ensuring consistency
@@ -522,13 +529,13 @@ def exercise_stats_view(request, exercise_id):
     # Use the already filtered all_logs QuerySet if it contains all needed entries,
     # otherwise, perform a separate aggregate query for clarity/correctness
     pr_query = WorkoutLog.objects.filter(
-            session__user=request.user,
-            exercise=exercise,
-            weight__isnull=False
-        ).aggregate(max_overall_weight=Max('weight'))
+        session__user=request.user,
+        exercise=exercise,
+        weight__isnull=False
+    ).aggregate(max_overall_weight=Max('weight'))
 
     if pr_query and pr_query['max_overall_weight'] is not None:
-         personal_record = pr_query['max_overall_weight']
+        personal_record = pr_query['max_overall_weight']
 
     context = {
         'exercise': exercise,
@@ -568,12 +575,12 @@ def monthly_report_view(request, year=None, month=None):
             today = timezone.now().date()
             year = today.year
             month = today.month
-    else: # Year/Month provided in URL, validate them
+    else:  # Year/Month provided in URL, validate them
         try:
             if not (1 <= month <= 12): raise ValueError("Invalid Month")
             current_year = timezone.now().year
             if not (current_year - 10 <= year <= current_year + 1): raise ValueError("Invalid Year")
-            datetime.date(year, month, 1) # Validate date construction
+            datetime.date(year, month, 1)  # Validate date construction
         except ValueError as e:
             messages.error(request, f"Invalid date specified: {e}. Showing current month.")
             today = timezone.now().date()
@@ -584,15 +591,17 @@ def monthly_report_view(request, year=None, month=None):
     try:
         target_date = datetime.date(year, month, 1)
         start_date = target_date
-        if month == 12: end_date = datetime.date(year + 1, 1, 1)
-        else: end_date = datetime.date(year, month + 1, 1)
-    except ValueError: # Fallback if date construction failed unexpectedly
+        if month == 12:
+            end_date = datetime.date(year + 1, 1, 1)
+        else:
+            end_date = datetime.date(year, month + 1, 1)
+    except ValueError:  # Fallback if date construction failed unexpectedly
         messages.error(request, "Failed to construct date range. Showing current month.")
         today = timezone.now().date()
         year, month = today.year, today.month
         target_date = datetime.date(year, month, 1)
-        start_date, end_date = target_date, (datetime.date(year + 1, 1, 1) if month == 12 else datetime.date(year, month + 1, 1))
-
+        start_date, end_date = target_date, (
+            datetime.date(year + 1, 1, 1) if month == 12 else datetime.date(year, month + 1, 1))
 
     # --- Fetch Data ---
     try:
@@ -600,10 +609,10 @@ def monthly_report_view(request, year=None, month=None):
             user=request.user,
             date__gte=start_date,
             date__lt=end_date
-        ).prefetch_related( # Use prefetch_related for efficiency
+        ).prefetch_related(  # Use prefetch_related for efficiency
             'logs', 'logs__exercise'
         ).order_by('date')
-        total_workout_days = sessions_in_month.count() # Get count efficiently
+        total_workout_days = sessions_in_month.count()  # Get count efficiently
     except Exception as e:
         messages.error(request, f"Error fetching report data: {e}")
         sessions_in_month = WorkoutSession.objects.none()
@@ -611,21 +620,20 @@ def monthly_report_view(request, year=None, month=None):
 
     # --- Prepare Context ---
     current_year = timezone.now().year
-    available_years = range(current_year, current_year - 6, -1) # Last 5 years + current
+    available_years = range(current_year, current_year - 6, -1)  # Last 5 years + current
     available_months = []
     # Ensure month range is valid if year is far in past/future
     try:
         available_months = [(m, datetime.date(year, m, 1).strftime('%B')) for m in range(1, 13)]
-    except ValueError: # Handle case where 'year' might be invalid for creating dates
-         available_months = [(m, datetime.date(current_year, m, 1).strftime('%B')) for m in range(1, 13)]
-
+    except ValueError:  # Handle case where 'year' might be invalid for creating dates
+        available_months = [(m, datetime.date(current_year, m, 1).strftime('%B')) for m in range(1, 13)]
 
     context = {
         'report_year': year,
         'report_month': month,
         'report_month_name': target_date.strftime('%B'),
         'total_workout_days': total_workout_days,
-        'sessions': sessions_in_month, # Pass the queryset with prefetched data
+        'sessions': sessions_in_month,  # Pass the queryset with prefetched data
         'available_years': available_years,
         'available_months': available_months,
     }
@@ -650,14 +658,15 @@ def health_tools_view(request):
     context = {'ideal_weight_guide': ideal_weight_guide}
     return render(request, 'workouts/health_tools.html', context)
 
+
 @login_required
 def remove_from_cart_view(request, date_str, item_index):
     """Removes an item from the session cart via AJAX POST request."""
     # We expect POST, although data is in URL - enforces action intent
     if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405) # Method Not Allowed
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)  # Method Not Allowed
 
-    error_message = "Unknown error." # Default
+    error_message = "Unknown error."  # Default
 
     try:
         cart = request.session.get('workout_cart', {})
@@ -667,13 +676,13 @@ def remove_from_cart_view(request, date_str, item_index):
         if 0 <= item_index < len(items_for_date):
             # Remove the item at the specified index
             removed_item = items_for_date.pop(item_index)
-            print(f"Removed item: {removed_item.get('exercise_name', 'Unknown')}") # Logging
+            print(f"Removed item: {removed_item.get('exercise_name', 'Unknown')}")  # Logging
 
             # Update the session
-            if not items_for_date: # If list is now empty, remove the date key
+            if not items_for_date:  # If list is now empty, remove the date key
                 del cart[date_str]
             else:
-                cart[date_str] = items_for_date # Put the modified list back
+                cart[date_str] = items_for_date  # Put the modified list back
 
             request.session['workout_cart'] = cart
             request.session.modified = True
@@ -686,18 +695,199 @@ def remove_from_cart_view(request, date_str, item_index):
             )
             return JsonResponse({'success': True, 'cart_html': html_fragment})
 
-        else: # Index out of bounds
+        else:  # Index out of bounds
             error_message = "Invalid item index specified."
             print(f"Error removing item: {error_message} Index: {item_index}, List length: {len(items_for_date)}")
-            return JsonResponse({'success': False, 'error': error_message}, status=400) # Bad Request
+            return JsonResponse({'success': False, 'error': error_message}, status=400)  # Bad Request
 
-    except KeyError: # Date string not found in cart (shouldn't happen if called correctly)
-         error_message = "Workout date not found in cart."
-         print(f"Error removing item: {error_message} Date: {date_str}")
-         return JsonResponse({'success': False, 'error': error_message}, status=404) # Not Found
+    except KeyError:  # Date string not found in cart (shouldn't happen if called correctly)
+        error_message = "Workout date not found in cart."
+        print(f"Error removing item: {error_message} Date: {date_str}")
+        return JsonResponse({'success': False, 'error': error_message}, status=404)  # Not Found
     except Exception as e:
         # Catch unexpected errors
         error_message = "An unexpected error occurred while removing the item."
         print(f"Unexpected error removing item: {e}")
         traceback.print_exc()
-        return JsonResponse({'success': False, 'error': error_message}, status=500) # Internal Server Error
+        return JsonResponse({'success': False, 'error': error_message}, status=500)  # Internal Server Error
+
+
+@login_required
+def add_custom_exercise_view(request):
+    """Allows logged-in users to add their own custom exercises."""
+    if request.method == 'POST':
+        # Pass the POST data to the form
+        form = CustomExerciseForm(request.POST)
+        if form.is_valid():
+            try:
+                # Create exercise instance but don't save to DB yet
+                exercise = form.save(commit=False)
+                # Assign the currently logged-in user
+                exercise.user = request.user
+                # Now save to DB
+                exercise.save()
+                messages.success(request, f"Custom exercise '{exercise.name}' added successfully!")
+                # Redirect back to the same page (allows adding multiple)
+                return redirect('workouts:add_custom_exercise')
+
+            except IntegrityError:
+                # Handle case where unique_together ('user', 'name') is violated
+                # Add a form error instead of just a message for better UX
+                form.add_error('name', f"You already have a custom exercise named '{form.cleaned_data['name']}'. Please choose a different name.")
+                messages.error(request, "Could not add exercise. Please correct the error below.")
+                # Let the view fall through to render the form with the error
+
+            except Exception as e:
+                # Catch other potential saving errors
+                messages.error(request, f"An unexpected error occurred while saving: {e}")
+                print(f"Error saving custom exercise for user {request.user.id}: {e}")
+                traceback.print_exc() # Log the full traceback
+                # Let the view fall through to render the form again
+    else:
+        # GET request: Display a blank form
+        form = CustomExerciseForm()
+
+    # Prepare context for rendering the template (handles both GET and failed POST)
+    # Optionally, add existing custom exercises to the context for display
+    user_custom_exercises = Exercise.objects.filter(user=request.user).order_by('name')
+
+    context = {
+        'form': form,
+        'user_custom_exercises': user_custom_exercises # Pass user's exercises to template
+    }
+    return render(request, 'workouts/add_custom_exercise.html', context)
+
+
+@login_required
+def log_workout_view(request, date_str):
+    """
+    Handles displaying the workout logging form for a specific date (GET)
+    and processing form submissions for changing dates or adding items
+    to the session cart (POST), supporting both AJAX and regular submissions
+    for adding items.
+    """
+    # --- Define 'today' and initialize 'view_date' early ---
+    today = timezone.now().date()
+    view_date = None # Initialize view_date
+
+    # --- Validate and parse the target date from URL ---
+    try:
+        parsed_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+        if parsed_date > today:
+            messages.error(request, "You cannot log workouts for future dates.")
+            return redirect('workouts:log_workout_today')
+        # Assign to view_date *after* successful validation
+        view_date = parsed_date
+    except ValueError:
+        messages.error(request, "Invalid date format provided.")
+        return redirect('workouts:log_workout_today')
+    # --- view_date is now guaranteed to be a valid date object if we proceed ---
+
+    # --- Fetch available exercises (Global + User's Custom) ---
+    available_exercises = Exercise.objects.filter(
+        Q(user=None) | Q(user=request.user)
+    ).order_by('name')
+
+    # --- Handle POST Requests ---
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+        # --- Action: Add Exercise Item to Cart ---
+        if action == 'add_item':
+            form_valid = False
+            error_message = "An unknown error occurred adding the item."
+            item_data = {}
+
+            try:
+                # Date check (view_date and today are accessible here)
+                if view_date > today: raise ValueError("Cannot add items for a future date.")
+
+                exercise_id = request.POST.get('exercise')
+                sets = request.POST.get('sets')
+                reps = request.POST.get('reps')
+                weight = request.POST.get('weight')
+
+                if not exercise_id: raise ValueError("Exercise must be selected.")
+
+                exercise = get_object_or_404(Exercise, pk=exercise_id) # Check against Exercise model
+
+                item_data = {
+                    'exercise_id': exercise.id, 'exercise_name': exercise.name,
+                    'sets': sets if sets else None, 'reps': reps if reps else None,
+                    'weight': weight if weight else None,
+                }
+
+                cart = request.session.get('workout_cart', {})
+                if date_str not in cart: cart[date_str] = []
+                cart[date_str].append(item_data)
+                request.session['workout_cart'] = cart
+                request.session.modified = True
+                form_valid = True
+
+            except (ValueError, Exercise.DoesNotExist, KeyError) as e:
+                error_message = f"{e}"
+                print(f"Error adding item to cart for date {date_str}: {error_message}")
+                form_valid = False
+            except Exception as e:
+                error_message = "An unexpected server error occurred while adding the item."
+                print(f"Unexpected error adding item for date {date_str}: {e}")
+                traceback.print_exc()
+                form_valid = False
+
+            # Respond: AJAX or Full Reload
+            if is_ajax:
+                if form_valid:
+                    current_cart = request.session.get('workout_cart', {})
+                    cart_items = current_cart.get(date_str, [])
+                    context_for_partial = {'cart_items': cart_items}
+                    try:
+                        html_fragment = render_to_string('workouts/partials/cart_items_list.html', context_for_partial)
+                        return JsonResponse({'success': True, 'cart_html': html_fragment})
+                    except Exception as e:
+                         print(f"Error rendering partial template for AJAX: {e}")
+                         traceback.print_exc()
+                         return JsonResponse({'success': False, 'error': 'Error updating cart display.'}, status=500)
+                else:
+                    return JsonResponse({'success': False, 'error': error_message}, status=400)
+            else: # Regular form submission
+                if form_valid:
+                    messages.success(request, f"{item_data.get('exercise_name', 'Item')} added to workout.")
+                else:
+                    messages.error(request, error_message)
+                return redirect('workouts:log_workout_date', date_str=date_str)
+
+        # --- Action: Change Date ---
+        elif action == 'change_date':
+            new_date_str = request.POST.get('selected_date')
+            if new_date_str:
+                try:
+                    new_date = datetime.datetime.strptime(new_date_str, '%Y-%m-%d').date()
+                    if new_date > today: # Use 'today' defined earlier
+                        messages.error(request, "You cannot select a future date.")
+                        return redirect('workouts:log_workout_date', date_str=date_str)
+                    return redirect('workouts:log_workout_date', date_str=new_date_str)
+                except ValueError:
+                    messages.error(request, f"Invalid date format selected: {new_date_str}")
+            return redirect('workouts:log_workout_date', date_str=date_str)
+
+        # Handle other POST actions or unknown action
+        else:
+            messages.warning(request, "Unknown form action submitted.")
+            return redirect('workouts:log_workout_date', date_str=date_str)
+
+    # --- Handle GET Request (Initial page load) ---
+    else:
+        cart = request.session.get('workout_cart', {})
+        cart_items_for_date = cart.get(date_str, [])
+
+        # --- Construct Context for GET request ---
+        # 'view_date' and 'today' are now guaranteed to be defined here
+        context = {
+            'available_exercises': available_exercises,
+            'cart_items': cart_items_for_date,
+            'view_date': view_date, # Use the validated date object
+            'view_date_str': date_str, # Keep the original string too if needed
+            'today_date_str': today.strftime('%Y-%m-%d'), # Use today defined at the start
+        }
+        return render(request, 'workouts/log_workout.html', context)
