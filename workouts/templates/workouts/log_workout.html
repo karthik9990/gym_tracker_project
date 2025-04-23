@@ -122,165 +122,268 @@
 {#                     Combined JavaScript Block                        #}
 {# ====================================================================== #}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
 
-        // ======================================================
-        // Rest Timer Logic (No changes needed here)
-        // ======================================================
-        const timerDisplay = document.getElementById('restTimerDisplay');
-        const startButton = document.getElementById('timerStartBtn');
-        const stopButton = document.getElementById('timerStopBtn');
-        const resetButton = document.getElementById('timerResetBtn');
-        let timerInterval = null;
-        let elapsedSeconds = 0;
-        let isRunning = false;
+    // ======================================================
+    // Rest Timer Logic (Keep as is)
+    // ======================================================
+    const timerDisplay = document.getElementById('restTimerDisplay');
+    const startButton = document.getElementById('timerStartBtn');
+    const stopButton = document.getElementById('timerStopBtn');
+    const resetButton = document.getElementById('timerResetBtn');
+    let timerInterval = null;
+    let elapsedSeconds = 0;
+    let isRunning = false;
 
-        function formatTime(totalSeconds) {
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-        function updateDisplay() { timerDisplay.textContent = formatTime(elapsedSeconds); }
-        function updateButtonStates() {
-            startButton.disabled = isRunning;
-            stopButton.disabled = !isRunning;
-            resetButton.disabled = isRunning || elapsedSeconds === 0;
-        }
-        function startTimer() {
-            if (isRunning) return;
-            isRunning = true;
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => { elapsedSeconds++; updateDisplay(); }, 1000);
-            updateButtonStates();
-        }
-        function stopTimer() {
-            if (!isRunning) return;
-            isRunning = false;
+    // --- Timer Helper Functions ---
+    function formatTime(totalSeconds) {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+    function updateDisplay() { if(timerDisplay) timerDisplay.textContent = formatTime(elapsedSeconds); }
+    function updateButtonStates() {
+        if(!startButton || !stopButton || !resetButton) return; // Exit if buttons not found
+        startButton.disabled = isRunning;
+        stopButton.disabled = !isRunning;
+        resetButton.disabled = isRunning || elapsedSeconds === 0;
+    }
+    function startTimer() {
+        if (isRunning) return;
+        isRunning = true;
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => { elapsedSeconds++; updateDisplay(); }, 1000);
+        updateButtonStates();
+    }
+    function stopTimer() {
+        if (!isRunning) return;
+        isRunning = false;
+        if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        updateButtonStates();
+    }
+    function resetTimer() {
+        if (isRunning) {
             if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-            updateButtonStates();
+            isRunning = false;
         }
-        function resetTimer() {
-            if (isRunning) {
-                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-                isRunning = false;
+        elapsedSeconds = 0;
+        updateDisplay();
+        updateButtonStates();
+    }
+    // Add listeners only if all timer elements exist
+    if(timerDisplay && startButton && stopButton && resetButton) {
+        startButton.addEventListener('click', startTimer);
+        stopButton.addEventListener('click', stopTimer);
+        resetButton.addEventListener('click', resetTimer);
+        updateDisplay(); // Initial state
+        updateButtonStates(); // Initial state
+    } else {
+        console.warn("Rest timer elements not found.");
+    }
+
+
+    // ======================================================
+    // Tom Select Initialization (Keep as is)
+    // ======================================================
+    const exerciseSelectElement = document.getElementById('exercise-select');
+    let exerciseTomSelect = null; // Define outside the if block
+    if (exerciseSelectElement) {
+        const exerciseOptions = [
+            {% for ex in available_exercises %}
+                { value: '{{ ex.id }}', text: '{{ ex.name|escapejs }}' },
+            {% endfor %}
+        ];
+        // Assign to the variable accessible outside
+        exerciseTomSelect = new TomSelect(exerciseSelectElement, {
+            options: exerciseOptions,
+            valueField: 'value', labelField: 'text', searchField: ['text'],
+            create: false, placeholder: 'Search or select an exercise...',
+            sortField: { field: "text", direction: "asc" }
+        });
+    } else {
+        console.warn("TomSelect target element 'exercise-select' not found.");
+    }
+
+    // ======================================================
+    // AJAX Add/Remove Cart Logic
+    // ======================================================
+    const addExerciseForm = document.getElementById('add-exercise-form');
+    const cartContainer = document.getElementById('cart-items-container');
+    const setsInput = document.getElementById('sets');
+    const repsInput = document.getElementById('reps');
+    const weightInput = document.getElementById('weight');
+    const saveWorkoutForm = document.getElementById('save-workout-form'); // Reference to the Save form
+
+    // --- Function to Update Save Button Visibility ---
+    function updateSaveButtonVisibility() {
+        if (saveWorkoutForm && cartContainer) {
+            const hasItems = cartContainer.querySelector('ul.list-group') || cartContainer.querySelector('li');
+            saveWorkoutForm.style.display = hasItems ? 'block' : 'none';
+        }
+    }
+
+    // --- AJAX Add Item ---
+    if (addExerciseForm && cartContainer) {
+        addExerciseForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default page reload
+            console.log("Add Exercise Form Submitted!"); // Debug
+
+            const formData = new FormData(addExerciseForm);
+
+            // Get date string from hidden input for URL construction
+            const viewDateStr = formData.get('date');
+            if (!viewDateStr) {
+                alert('Error: Could not determine the date for submission.');
+                console.error("Hidden input 'date' not found in form data for Add.");
+                return;
             }
-            elapsedSeconds = 0;
-            updateDisplay();
-            updateButtonStates();
-        }
-        // Check elements exist before adding listeners
-        if(timerDisplay && startButton && stopButton && resetButton) {
-            startButton.addEventListener('click', startTimer);
-            stopButton.addEventListener('click', stopTimer);
-            resetButton.addEventListener('click', resetTimer);
-            updateDisplay();
-            updateButtonStates();
-        }
+            const url = `/workouts/log/${viewDateStr}/`; // Correctly constructed URL
 
-        // ======================================================
-        // Tom Select Initialization (No changes needed here)
-        // ======================================================
-        const exerciseSelectElement = document.getElementById('exercise-select');
-        if (exerciseSelectElement) {
-            const exerciseOptions = [
-                {% for ex in available_exercises %}
-                    { value: '{{ ex.id }}', text: '{{ ex.name|escapejs }}' },
-                {% endfor %}
-            ];
-            new TomSelect(exerciseSelectElement, {
-                options: exerciseOptions,
-                valueField: 'value', labelField: 'text', searchField: ['text'],
-                create: false, placeholder: 'Search or select an exercise...',
-                sortField: { field: "text", direction: "asc" }
+            console.log("AJAX POST URL (Add):", url); // Debug the final URL
+
+            // Get CSRF token from form data
+            const csrfToken = formData.get('csrfmiddlewaretoken');
+            if (!csrfToken) {
+                alert('Error: Security token missing. Please refresh the page.');
+                console.error("CSRF token not found in form data for Add.");
+                return;
+            }
+            const headers = new Headers({
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
             });
-        }
 
-        // ======================================================
-        // AJAX Add to Cart Logic (URL construction modified)
-        // ======================================================
-        const addExerciseForm = document.getElementById('add-exercise-form');
-        const cartContainer = document.getElementById('cart-items-container');
-        const exerciseTomSelect = exerciseSelectElement ? exerciseSelectElement.tomselect : null; // TomSelect instance
-        const setsInput = document.getElementById('sets');
-        const repsInput = document.getElementById('reps');
-        const weightInput = document.getElementById('weight');
-        const saveWorkoutForm = document.getElementById('save-workout-form'); // Get save form by ID
+            // Basic client-side check for exercise selection
+            if (!formData.get('exercise')) {
+                 alert('Please select an exercise.');
+                 return;
+            }
 
-        if (addExerciseForm && cartContainer) {
-            addExerciseForm.addEventListener('submit', function(event) {
-                event.preventDefault(); // Stop default form submission
-                const formData = new FormData(addExerciseForm);
+            // Optional: Indicate loading
+            addExerciseForm.querySelector('button[type="submit"]').disabled = true;
+            addExerciseForm.querySelector('button[type="submit"]').innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...`;
 
-                // --- ** FIX: Construct URL Manually ** ---
-                // Get the date string from the hidden input within the form data
-                const viewDateStr = formData.get('date');
-                if (!viewDateStr) {
-                    alert('Error: Could not determine the date for submission.');
-                    console.error("Hidden input 'date' not found in form data.");
-                    return; // Stop if date is missing
+            fetch(url, { method: 'POST', body: formData, headers: headers })
+            .then(response => {
+                // Always re-enable button once response received
+                addExerciseForm.querySelector('button[type="submit"]').disabled = false;
+                addExerciseForm.querySelector('button[type="submit"]').textContent = 'Add to Workout';
+
+                if (!response.ok) {
+                     // Try parsing JSON error first, then fall back
+                     return response.json()
+                        .then(errData => { throw new Error(errData.error || `Server Error: ${response.status}`); })
+                        .catch(() => { throw new Error(`HTTP error! Status: ${response.status}`); });
                 }
-                // Construct the URL based on the known pattern
-                const url = `/workouts/log/${viewDateStr}/`; // Ensure leading/trailing slashes match urls.py
-                // --- ** End URL Fix ** ---
+                return response.json(); // Parse success JSON
+            })
+            .then(data => {
+                if (data.success) {
+                    cartContainer.innerHTML = data.cart_html; // Update cart display
+                    // Clear form fields
+                    if (exerciseTomSelect) exerciseTomSelect.clear();
+                    if(setsInput) setsInput.value = '';
+                    if(repsInput) repsInput.value = '';
+                    if(weightInput) weightInput.value = '';
+                    updateSaveButtonVisibility(); // Update save button state
+                } else {
+                    console.error('Server error (Add):', data.error);
+                    alert(`Error adding item: ${data.error || 'Unknown error'}`);
+                }
+            })
+            .catch(error => {
+                // Re-enable button on fetch error too
+                addExerciseForm.querySelector('button[type="submit"]').disabled = false;
+                addExerciseForm.querySelector('button[type="submit"]').textContent = 'Add to Workout';
+                console.error('Fetch error (Add):', error);
+                alert(`Request failed: ${error.message}. Please check connection or try again.`);
+            });
+        });
+    } else {
+         console.warn("Could not find Add Exercise Form or Cart Container for AJAX Add setup.");
+    }
 
-                console.log("AJAX POST URL:", url); // Debug: Log the URL being used
 
+    // --- AJAX Remove Item (Event Delegation) ---
+    const mainCsrfTokenInput = document.querySelector('#add-exercise-form input[name="csrfmiddlewaretoken"]');
+
+    if (cartContainer && mainCsrfTokenInput) { // Check both exist
+        cartContainer.addEventListener('click', function(event) {
+            const removeButton = event.target.closest('.remove-cart-item-btn');
+
+            if (removeButton) {
+                event.preventDefault();
+
+                const itemIndex = removeButton.dataset.itemIndex;
+                const dateStrInput = document.querySelector('#add-exercise-form input[name="date"]'); // Get current date context
+
+                if (itemIndex === undefined || !dateStrInput || !dateStrInput.value) {
+                    alert('Error: Could not determine item or date to remove.');
+                    console.error("Missing item index or date string for removal.");
+                    return;
+                }
+
+                const dateStr = dateStrInput.value;
+                const url = `/workouts/log/remove/${dateStr}/${itemIndex}/`; // Correct Remove URL
+
+                if (!confirm('Are you sure you want to remove this item?')) {
+                    return; // Abort if user cancels
+                }
+
+                console.log("AJAX POST URL (Remove):", url); // Debug
+
+                const csrfToken = mainCsrfTokenInput.value; // Get CSRF token
+                 if (!csrfToken) {
+                    alert('Error: Security token missing. Please refresh the page.');
+                    console.error("CSRF token not found for Remove.");
+                    return;
+                }
                 const headers = new Headers({
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': formData.get('csrfmiddlewaretoken') // Get CSRF token from form data
+                    'X-CSRFToken': csrfToken
                 });
 
-                // Basic client-side check
-                if (!formData.get('exercise')) {
-                     alert('Please select an exercise.');
-                     return;
-                }
+                // Optional: Disable button during request
+                removeButton.disabled = true;
+                removeButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
-                // Optional: Show loading state
-                // cartContainer.innerHTML = '<div class="text-center p-3"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...</div>';
 
-                fetch(url, { method: 'POST', body: formData, headers: headers })
+                fetch(url, { method: 'POST', headers: headers }) // Send POST
                 .then(response => {
                     if (!response.ok) {
-                         // Try parsing JSON error first, then fall back
-                         return response.json()
-                            .then(errData => { throw new Error(errData.error || `Server Error: ${response.status}`); })
-                            .catch(() => { throw new Error(`HTTP error! Status: ${response.status}`); });
+                         return response.json().then(errData => { throw new Error(errData.error || `Server Error: ${response.status}`); })
+                         .catch(() => { throw new Error(`HTTP error! Status: ${response.status}`); });
                     }
-                    return response.json(); // Parse success JSON
+                    return response.json();
                 })
                 .then(data => {
                     if (data.success) {
-                        cartContainer.innerHTML = data.cart_html; // Update cart display
-                        // Clear form fields
-                        if (exerciseTomSelect) exerciseTomSelect.clear();
-                        if(setsInput) setsInput.value = '';
-                        if(repsInput) repsInput.value = '';
-                        if(weightInput) weightInput.value = '';
-
-                        // Ensure save button is visible if items exist
-                        const hasItems = cartContainer.querySelector('ul.list-group') || cartContainer.querySelector('li');
-                        if(saveWorkoutForm) {
-                            saveWorkoutForm.style.display = hasItems ? 'block' : 'none';
-                        }
+                        cartContainer.innerHTML = data.cart_html; // Update display
+                        updateSaveButtonVisibility(); // Update save button state
                     } else {
-                        // Handle application-level errors returned in JSON
-                        console.error('Server error:', data.error);
-                        alert(`Error adding item: ${data.error || 'Unknown error'}`);
-                        // Optional: Restore previous cart state or indicate error more clearly
+                         console.error('Server error (Remove):', data.error);
+                         alert(`Error removing item: ${data.error || 'Unknown error'}`);
+                         // Re-enable button on error
+                         removeButton.disabled = false;
+                         removeButton.innerHTML = '<i class="bi bi-x-lg"></i>';
                     }
                 })
                 .catch(error => {
-                    // Handle network errors or errors thrown from .then() blocks
-                    console.error('Fetch error:', error);
+                    console.error('Fetch error (Remove):', error);
                     alert(`Request failed: ${error.message}. Please check connection or try again.`);
-                    // Optional: Restore previous cart state
+                    // Re-enable button on error
+                    removeButton.disabled = false;
+                    removeButton.innerHTML = '<i class="bi bi-x-lg"></i>';
                 });
-            });
-        } // end if addExerciseForm
+            } // end if removeButton
+        }); // end click listener
+    } else {
+         console.warn("Could not find Cart Container or CSRF Token Input for AJAX Remove setup.");
+    }
 
-        // Add event delegation for remove buttons later...
+    // --- Initial Save Button Visibility ---
+    updateSaveButtonVisibility(); // Call on page load
 
-    }); // End DOMContentLoaded
+}); // End DOMContentLoaded
 </script>
 {% endblock %}

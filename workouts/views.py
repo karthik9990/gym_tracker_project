@@ -649,3 +649,55 @@ def health_tools_view(request):
     ]
     context = {'ideal_weight_guide': ideal_weight_guide}
     return render(request, 'workouts/health_tools.html', context)
+
+@login_required
+def remove_from_cart_view(request, date_str, item_index):
+    """Removes an item from the session cart via AJAX POST request."""
+    # We expect POST, although data is in URL - enforces action intent
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405) # Method Not Allowed
+
+    error_message = "Unknown error." # Default
+
+    try:
+        cart = request.session.get('workout_cart', {})
+        items_for_date = cart.get(date_str, [])
+
+        # Validate index
+        if 0 <= item_index < len(items_for_date):
+            # Remove the item at the specified index
+            removed_item = items_for_date.pop(item_index)
+            print(f"Removed item: {removed_item.get('exercise_name', 'Unknown')}") # Logging
+
+            # Update the session
+            if not items_for_date: # If list is now empty, remove the date key
+                del cart[date_str]
+            else:
+                cart[date_str] = items_for_date # Put the modified list back
+
+            request.session['workout_cart'] = cart
+            request.session.modified = True
+
+            # Prepare context for the updated partial view
+            context_for_partial = {'cart_items': items_for_date}
+            html_fragment = render_to_string(
+                'workouts/partials/cart_items_list.html',
+                context_for_partial
+            )
+            return JsonResponse({'success': True, 'cart_html': html_fragment})
+
+        else: # Index out of bounds
+            error_message = "Invalid item index specified."
+            print(f"Error removing item: {error_message} Index: {item_index}, List length: {len(items_for_date)}")
+            return JsonResponse({'success': False, 'error': error_message}, status=400) # Bad Request
+
+    except KeyError: # Date string not found in cart (shouldn't happen if called correctly)
+         error_message = "Workout date not found in cart."
+         print(f"Error removing item: {error_message} Date: {date_str}")
+         return JsonResponse({'success': False, 'error': error_message}, status=404) # Not Found
+    except Exception as e:
+        # Catch unexpected errors
+        error_message = "An unexpected error occurred while removing the item."
+        print(f"Unexpected error removing item: {e}")
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'error': error_message}, status=500) # Internal Server Error

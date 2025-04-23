@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Dynamically search with keyboard as there are multiple workouts in the list">
-      <change afterPath="$PROJECT_DIR$/workouts/templates/workouts/partials/cart_items_list.html" afterDir="false" />
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="AJAX &quot;Add to Workout&quot;&#10;and cache to clear when the server stop and starts a fresh session.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gym_tracker_project/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -238,7 +237,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745381329340</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="AJAX &quot;Add to Workout&quot;&#10;and cache to clear when the server stop and starts a fresh session.">
+      <option name="closed" value="true" />
+      <created>1745436790081</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1745436790081</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -261,6 +268,7 @@
     <MESSAGE value="Added health_tools.html&#10;where we can check BMI, lbs to kgs, and height to weight scale" />
     <MESSAGE value="Added Timer to log_workout.html&#10;working well" />
     <MESSAGE value="Dynamically search with keyboard as there are multiple workouts in the list" />
-    <option name="LAST_COMMIT_MESSAGE" value="Dynamically search with keyboard as there are multiple workouts in the list" />
+    <MESSAGE value="AJAX &quot;Add to Workout&quot;&#10;and cache to clear when the server stop and starts a fresh session." />
+    <option name="LAST_COMMIT_MESSAGE" value="AJAX &quot;Add to Workout&quot;&#10;and cache to clear when the server stop and starts a fresh session." />
   </component>
 </project>
