@@ -4,11 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added Timer to log_workout.html&#10;working well">
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Dynamically search with keyboard as there are multiple workouts in the list">
+      <change afterPath="$PROJECT_DIR$/workouts/templates/workouts/partials/cart_items_list.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gym_tracker_project/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/log_workout.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +64,7 @@
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\workouts\templatetags" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ktadakapalli\gym_tracker_project\workouts\templates\workouts\partials" />
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\static\images\icons" />
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\workouts\templates\workouts" />
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\templates\registration" />
@@ -227,7 +230,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745365976192</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Dynamically search with keyboard as there are multiple workouts in the list">
+      <option name="closed" value="true" />
+      <created>1745381329340</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1745381329340</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -249,6 +260,7 @@
     <MESSAGE value="Added/edited Monthly Workout Report with detail summary of workouts in that monthly_report.html" />
     <MESSAGE value="Added health_tools.html&#10;where we can check BMI, lbs to kgs, and height to weight scale" />
     <MESSAGE value="Added Timer to log_workout.html&#10;working well" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Timer to log_workout.html&#10;working well" />
+    <MESSAGE value="Dynamically search with keyboard as there are multiple workouts in the list" />
+    <option name="LAST_COMMIT_MESSAGE" value="Dynamically search with keyboard as there are multiple workouts in the list" />
   </component>
 </project>

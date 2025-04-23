@@ -1,0 +1,26 @@
+{# workouts/templates/workouts/partials/cart_items_list.html #}
+
+{% if cart_items %}
+    <ul class="list-group mb-3">
+        {% for item in cart_items %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>{{ item.exercise_name }}</strong>
+                    {% if item.sets and item.reps %} - {{ item.sets }}x{{ item.reps }}{% endif %}
+                    {% if item.weight %} @ {{ item.weight }}kg{% endif %}
+                    {# Display duration/notes if added #}
+                </span>
+                {# --- Add Remove Button Placeholder (Functionality later) --- #}
+                <button class="btn btn-sm btn-outline-danger remove-cart-item-btn"
+                        data-item-index="{{ forloop.counter0 }}" {# Pass index for removal later #}
+                        title="Remove this item">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                {# --- End Remove Button --- #}
+            </li>
+        {% endfor %}
+    </ul>
+     {# The Save button form should REMAIN in the main log_workout.html template #}
+{% else %}
+    <p class="text-muted">No exercises added to this workout yet.</p>
+{% endif %}

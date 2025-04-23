@@ -52,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'workouts.middleware.TimezoneMiddleware',
+    #'workouts.middleware.TimezoneMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -133,4 +133,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # gym_tracker_project/settings.py (at the bottom)
 LOGIN_REDIRECT_URL = '/workouts/'  # Redirect to the log page after login
 LOGOUT_REDIRECT_URL = '/'  # Redirect to home page (or login page) after logout
+
+
+# CACHES Configuration (Add this section if it doesn't exist)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake', # Can be any unique name for this cache instance
+    }
+}
+
+# SESSION ENGINE Configuration
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default' # Tells the session engine to use the cache named 'default'
 
