@@ -8,35 +8,56 @@
     <p class="text-muted">Add exercises that aren't in the main list. These will only be visible to you.</p>
     <hr>
 
-    <div class="row">
+    {# --- Add Exercise Form --- #}
+    <div class="row mb-5"> {# Added bottom margin #}
         <div class="col-md-8 col-lg-6">
-            <form method="post" novalidate>
+            <form method="post" action="{% url 'workouts:add_custom_exercise' %}" novalidate> {# Added action explicitly
+                #}
                 {% csrf_token %}
-
                 {# Render form using paragraphs or manually #}
                 {{ form.as_p }}
-
                 <button type="submit" class="btn btn-primary">Add Exercise</button>
-                {# Optional: Link back to dashboard or log page #}
-                <a href="{% url 'workouts:dashboard' %}" class="btn btn-secondary ms-2">Cancel</a>
             </form>
         </div>
     </div>
 
-    {# Optional: List user's existing custom exercises #}
-    {# You would need to pass these from the view context #}
-
-    <h4 class="mt-5">Your Custom Exercises</h4>
+    {# --- List User's Custom Exercises --- #}
+    <h4 class="mt-4">Your Custom Exercises</h4>
     {% if user_custom_exercises %}
-        <ul class="list-group mt-3">
-            {% for ex in user_custom_exercises %}
-            <li class="list-group-item">{{ ex.name }}{% if ex.description %} - <small>{{ ex.description|truncatewords:10 }}</small>{% endif %}</li>
-            {% endfor %}
-        </ul>
+    <div class="list-group">
+        {% for ex in user_custom_exercises %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong class="d-block">{{ ex.name }}</strong>
+                {% if ex.description %}
+                <small class="text-muted">{{ ex.description|truncatewords:20 }}</small>
+                {% endif %}
+            </div>
+            {# Delete Form for this specific exercise #}
+            <form action="{% url 'workouts:delete_custom_exercise' exercise_id=ex.id %}"
+                  method="POST"
+                  class="d-inline" {# Make form inline #}
+                  onsubmit="return confirm('Are you sure you want to delete the custom exercise \'{{ ex.name|escapejs }}\'?');">
+                {# JS Confirmation #}
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm" title="Delete '{{ ex.name }}'">
+                    <i class="bi bi-trash"></i> {# Trash Icon #}
+                    <span class="visually-hidden">Delete {{ ex.name }}</span> {# Accessibility #}
+                </button>
+            </form>
+        </div>
+        {# End list-group-item #}
+        {% endfor %}
+    </div>
+    {# End list-group #}
     {% else %}
-        <p>You haven't added any custom exercises yet.</p>
+    <p class="text-muted">You haven't added any custom exercises yet.</p>
     {% endif %}
+    {# --- End List --- #}
 
+    <div class="mt-4">
+        <a href="{% url 'workouts:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
 
 </div>
 {% endblock %}

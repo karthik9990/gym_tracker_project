@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="AJAX remove workout is successfully added, working">
-      <change afterPath="$PROJECT_DIR$/workouts/templates/workouts/add_custom_exercise.html" afterDir="false" />
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added Customized Exercise in profile.html, working well.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/templates/workouts/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/templates/workouts/profile.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
     </list>
@@ -257,7 +251,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745439912047</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Added Customized Exercise in profile.html, working well.">
+      <option name="closed" value="true" />
+      <created>1745442898249</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1745442898249</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -282,6 +284,7 @@
     <MESSAGE value="Dynamically search with keyboard as there are multiple workouts in the list" />
     <MESSAGE value="AJAX &quot;Add to Workout&quot;&#10;and cache to clear when the server stop and starts a fresh session." />
     <MESSAGE value="AJAX remove workout is successfully added, working" />
-    <option name="LAST_COMMIT_MESSAGE" value="AJAX remove workout is successfully added, working" />
+    <MESSAGE value="Added Customized Exercise in profile.html, working well." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added Customized Exercise in profile.html, working well." />
   </component>
 </project>

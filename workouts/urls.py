@@ -20,4 +20,6 @@ urlpatterns = [
     path('tools/health/', views.health_tools_view, name='health_tools'),
     path('profile/', views.profile_view, name='profile'),
     path('exercises/add/', views.add_custom_exercise_view, name='add_custom_exercise'),
+    path('exercises/delete/<int:exercise_id>/', views.delete_custom_exercise_view, name='delete_custom_exercise'),
+
 ]

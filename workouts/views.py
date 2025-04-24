@@ -891,3 +891,31 @@ def log_workout_view(request, date_str):
             'today_date_str': today.strftime('%Y-%m-%d'), # Use today defined at the start
         }
         return render(request, 'workouts/log_workout.html', context)
+
+@login_required
+def delete_custom_exercise_view(request, exercise_id):
+    """Deletes a custom exercise created by the logged-in user."""
+    # Only allow POST requests for deletion
+    if request.method != 'POST':
+        messages.error(request, "Invalid method used for deletion.")
+        return HttpResponseNotAllowed(['POST'])
+
+    # Get the exercise, BUT only if it belongs to the current user
+    # This prevents users from deleting global exercises (user=None)
+    # or exercises belonging to other users.
+    exercise_to_delete = get_object_or_404(
+        Exercise,
+        pk=exercise_id,
+        user=request.user # <-- CRITICAL SECURITY CHECK
+    )
+
+    try:
+        exercise_name = exercise_to_delete.name # Get name for message
+        exercise_to_delete.delete()
+        messages.success(request, f"Custom exercise '{exercise_name}' deleted successfully.")
+    except Exception as e:
+        messages.error(request, f"Could not delete custom exercise: {e}")
+        print(f"Error deleting custom Exercise ID {exercise_id} for user {request.user.id}: {e}")
+
+    # Redirect back to the page where they manage custom exercises
+    return redirect('workouts:add_custom_exercise')
