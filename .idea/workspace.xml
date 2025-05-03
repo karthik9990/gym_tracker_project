@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added Customized Exercise in profile.html, working well.">
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added delete button to  Customized Exercise in profile.html, working well.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workouts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/workouts/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gym_tracker_project/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gym_tracker_project/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/registration/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/login.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,21 +27,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "karthik9990"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;karthik9990&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/karthik9990/gym_tracker_project.git",
-    "accountId": "3890c7e3-eb78-4a03-96ac-b8c51eb4531f"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/karthik9990/gym_tracker_project.git&quot;,
+    &quot;accountId&quot;: &quot;3890c7e3-eb78-4a03-96ac-b8c51eb4531f&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="2w3BH4VsCaXRNyQyby2EHCuD0JK" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -48,14 +50,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/ktadakapalli/gym_tracker_project/workouts/templatetags"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/ktadakapalli/gym_tracker_project/workouts/templatetags&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\ktadakapalli\gym_tracker_project\workouts\templatetags" />
@@ -259,7 +261,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745442898249</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Added delete button to  Customized Exercise in profile.html, working well.">
+      <option name="closed" value="true" />
+      <created>1745506474832</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1745506474832</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -285,6 +295,7 @@
     <MESSAGE value="AJAX &quot;Add to Workout&quot;&#10;and cache to clear when the server stop and starts a fresh session." />
     <MESSAGE value="AJAX remove workout is successfully added, working" />
     <MESSAGE value="Added Customized Exercise in profile.html, working well." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Customized Exercise in profile.html, working well." />
+    <MESSAGE value="Added delete button to  Customized Exercise in profile.html, working well." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added delete button to  Customized Exercise in profile.html, working well." />
   </component>
 </project>

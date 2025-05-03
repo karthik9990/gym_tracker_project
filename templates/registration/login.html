@@ -1,4 +1,5 @@
 {% extends 'workouts/base.html' %} {# Use your app's base template #}
+{% load socialaccount %}
 
 {% block title %}Log In{% endblock %}
 
@@ -62,7 +63,7 @@
                             <div class="input-group"> {# Use Input Group for icon #}
                                 <input type="password" {# Start as password type #}
                                        name="{{ form.password.name }}"
-                                       id="{{ form.password.id_for_label }}" {# Use field's ID #}
+                                       id="{{ form.password.id_for_label }}" {# Use fields ID #}
                                        class="form-control {% if form.password.errors or form.non_field_errors %}is-invalid{% endif %}" {# Mark invalid if non-field errors too #}
                                        required>
                                 <span class="input-group-text password-toggle-icon"
@@ -87,6 +88,17 @@
                         </div>
                     </form>
                 </div>
+                {# --- Social Login Button --- #}
+                <div class="text-center">
+                        <p class="mb-2">Or sign in with:</p>
+                        {# Use the providers_media_js tag if needed, usually not required for just Google #}
+                        {# {% providers_media_js %} #}
+                        <a href="{% provider_login_url 'google' %}" class="btn btn-outline-danger w-75"> {# Style as desired #}
+                           <i class="bi bi-google me-2"></i> Continue with Google
+                        </a>
+                </div>
+                     {# --- End Social Login --- #}
+                <br>
                 <div class="card-footer text-center bg-light">
                     <small>Need an account? <a href="{% url 'signup' %}">Sign Up</a></small>
                 </div>

@@ -13,10 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
-
 # gym_tracker_project/settings.py
-
-
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,6 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # allauth and its components
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+
+    # Google provider
+    'allauth.socialaccount.providers.google',
+
+    # Your apps
     'workouts',
 ]
 
@@ -52,8 +58,9 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    #'workouts.middleware.TimezoneMiddleware',
+    # 'workouts.middleware.TimezoneMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'gym_tracker_project.urls'
@@ -120,7 +127,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'), # Path to the project-wide static directory
+    os.path.join(BASE_DIR, 'static'),  # Path to the project-wide static directory
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -134,16 +141,56 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/workouts/'  # Redirect to the log page after login
 LOGOUT_REDIRECT_URL = '/'  # Redirect to home page (or login page) after logout
 
+# Account settings
+
+#ACCOUNT_LOGIN_METHODS = ["email"]
+ACCOUNT_LOGIN_METHODS = ["username", "email"] # Allow login with EITHER username OR email
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # Or 'mandatory' or 'none' - 'optional' is good to start
+ACCOUNT_UNIQUE_EMAIL = True
+
+
+# Social Account settings
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Automatically sign up users if they authenticate via social provider
+SOCIALACCOUNT_EMAIL_REQUIRED = True  # Inherit email requirement
+SOCIALACCOUNT_QUERY_EMAIL = True  # Ask provider for email
+SOCIALACCOUNT_STORE_TOKENS = False  # Don't store social tokens unless needed
+
+# Provider specific settings (we'll add Google keys later)
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        # This specifies the scopes (permissions) your app requests from Google.
+        # 'profile' and 'email' are standard for login.
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        # How to authenticate - 'oauth2' is standard for Google
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        # Tell allauth only to use OpenID Connect for Google
+        'OAUTH_PKCE_ENABLED': True,
+    }
+}
 
 # CACHES Configuration (Add this section if it doesn't exist)
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake', # Can be any unique name for this cache instance
+        'LOCATION': 'unique-snowflake',  # Can be any unique name for this cache instance
     }
 }
 
 # SESSION ENGINE Configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default' # Tells the session engine to use the cache named 'default'
+SESSION_CACHE_ALIAS = 'default'  # Tells the session engine to use the cache named 'default'
 
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, e.g. login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1

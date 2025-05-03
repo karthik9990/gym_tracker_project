@@ -24,5 +24,6 @@ urlpatterns = [
     path('workouts/', include('workouts.urls')),
     path('accounts/signup/', workout_views.signup_view, name='signup'),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('allauth.urls')),
     # Add authentication URLs later
 ]
