@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added delete button to  Customized Exercise in profile.html, working well.">
+    <list default="true" id="2d7d338a-a0ba-4c22-a344-786c02b4906a" name="Changes" comment="Added Continue with Google component, and its working">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gym_tracker_project/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gym_tracker_project/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/gym_tracker_project/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/registration/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/registration/signup.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/signup.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -269,7 +266,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745506474832</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Added Continue with Google component, and its working">
+      <option name="closed" value="true" />
+      <created>1746273351122</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1746273351123</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -296,6 +301,7 @@
     <MESSAGE value="AJAX remove workout is successfully added, working" />
     <MESSAGE value="Added Customized Exercise in profile.html, working well." />
     <MESSAGE value="Added delete button to  Customized Exercise in profile.html, working well." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added delete button to  Customized Exercise in profile.html, working well." />
+    <MESSAGE value="Added Continue with Google component, and its working" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added Continue with Google component, and its working" />
   </component>
 </project>
